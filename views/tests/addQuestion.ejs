@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Question</title>
+</head>
+<body>
+    <h1>Add Question to Test</h1>
+
+    <form method="POST" action="/test/<%= testId %>/add-question">
+        <label>Question Text:</label><br>
+        <input type="text" name="question_text" required><br><br>
+
+        <label>Question Type:</label><br>
+        <select id="question_type" name="question_type" required>
+            <option value="one">One correct answer</option>
+            <option value="multi">Multiple correct answers</option>
+            <option value="text">Text input</option>
+            <option value="number">Numeric input</option>
+        </select><br><br>
+
+        <div id="answer_count_block">
+            <label>Number of Answers (2-6):</label><br>
+            <input type="number" id="answer_count" name="answer_count" min="2" max="6" value="4"><br><br>
+        </div>
+
+        <div id="answers-block">
+            <h2>Answers</h2>
+            <div id="answers-container"></div>
+        </div>
+        <div id="manual-answer-block" style="display:none;">
+            <h2>Correct Answer (optional)</h2>
+            <label>Expected Answer:</label><br>
+            <input type="text" name="manual_correct_answer"><br><br>
+        </div>
+        
+        <button type="submit">Add Question</button>
+    </form>
+
+    <h2>Existing Questions</h2>
+    <ul>
+        <% if (questions && questions.length > 0) { %>
+            <% questions.forEach(q => { %>
+                <li>
+                    <%= q.question_text %> (<%= q.question_type %>)
+                    — <a href="/delete-question/<%= q.question_id %>" onclick="return confirm('Are you sure you want to delete this question?');">Delete Question</a>
+                </li>
+            <% }) %>
+        <% } else { %>
+            <li>No questions yet.</li>
+        <% } %>
+    </ul>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+
+    <script>
+        const questionTypeSelect = document.getElementById('question_type');
+        const answersBlock = document.getElementById('answers-block');
+        const answersContainer = document.getElementById('answers-container');
+        const answerCountInput = document.getElementById('answer_count');
+        const answerCountBlock = document.getElementById('answer_count_block');
+
+        function generateAnswers() {
+            answersContainer.innerHTML = '';
+            const count = parseInt(answerCountInput.value);
+
+            for (let i = 0; i < count; i++) {
+                const answerDiv = document.createElement('div');
+
+                const label = document.createElement('label');
+                label.textContent = `Answer ${i+1}:`;
+                answerDiv.appendChild(label);
+
+                answerDiv.appendChild(document.createElement('br'));
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = `answer_text_${i}`;
+                input.required = true;
+                answerDiv.appendChild(input);
+
+                answerDiv.appendChild(document.createElement('br'));
+
+                const correctLabel = document.createElement('label');
+                correctLabel.textContent = 'Is Correct?';
+                answerDiv.appendChild(correctLabel);
+
+                const correctInput = document.createElement('input');
+
+                if (questionTypeSelect.value === 'one') {
+                    correctInput.type = 'radio';
+                    correctInput.name = 'is_correct';
+                    correctInput.value = i;
+                } else {
+                    correctInput.type = 'checkbox';
+                    correctInput.name = `is_correct_${i}`;
+                }
+
+                answerDiv.appendChild(correctInput);
+
+                answerDiv.appendChild(document.createElement('br'));
+                answerDiv.appendChild(document.createElement('br'));
+
+                answersContainer.appendChild(answerDiv);
+            }
+        }
+
+        function toggleAnswersBlock() {
+            const type = questionTypeSelect.value;
+            const isManual = type === 'text' || type === 'number';
+            const manualAnswerBlock = document.getElementById('manual-answer-block');
+        
+            answersBlock.style.display = isManual ? 'none' : 'block';
+            answerCountBlock.style.display = isManual ? 'none' : 'block';
+            manualAnswerBlock.style.display = isManual ? 'block' : 'none';
+        
+            if (!isManual) {
+                generateAnswers();
+            }
+        
+            const answerInputs = answersContainer.querySelectorAll('input[type="text"]');
+            answerInputs.forEach(input => input.required = !isManual);
+        }
+        
+        
+
+        questionTypeSelect.addEventListener('change', toggleAnswersBlock);
+        answerCountInput.addEventListener('input', generateAnswers);
+
+        toggleAnswersBlock(); // при старті
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tests List</title>
+</head>
+<body>
+    <h1>Tests for Course</h1>
+
+    <ul>
+        <% if (tests && tests.length > 0) { %>
+            <% tests.forEach(test => { %>
+                <li>
+                    <strong><%= test.title %></strong>
+                    <% if (test.is_visible) { %>
+                        <span style="color: green;">(Visible)</span>
+                    <% } else { %>
+                        <span style="color: red;">(Hidden)</span>
+                    <% } %>
+                    —
+                    <a href="/test/<%= test.id %>">View</a>
+                    |
+                    <a href="/test/<%= test.id %>/add-question">Add Question</a>
+                    |
+                    <a href="/test/<%= test.id %>/edit">Edit</a>
+                    |
+                    <a href="/test/<%= test.id %>/results">View Results</a>
+                    |
+                    <a href="/delete-test/<%= test.id %>" onclick="return confirm('Are you sure you want to delete this test?');">Delete</a>
+                </li>
+            <% }) %>
+        <% } else { %>
+            <li>No tests available for this course.</li>
+        <% } %>
+    </ul>
+    
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All My Tests</title>
+</head>
+<body>
+    <h1>All Available Tests</h1>
+
+    <% if (tests.length === 0) { %>
+        <p>No tests available.</p>
+    <% } else { %>
+        <ul>
+        <% tests.forEach(test => { %>
+            <li style="margin-bottom: 20px;">
+                <strong><%= test.title %></strong>  
+                (Course: <%= test.course_name %>)<br>
+                Start: <%= test.start_time ? new Date(test.start_time).toLocaleString() : '-' %><br>
+                End: <%= test.end_time ? new Date(test.end_time).toLocaleString() : '-' %><br>
+                Time Limit: <%= test.time_limit_minutes ? test.time_limit_minutes + ' min' : '-' %><br>
+                Attempts: <%= test.attempts_made %> /
+                          <%= test.max_attempts ? test.max_attempts : '-' %><br>
+                Score: <%= test.last_score != null ? test.last_score + '%' : '-' %><br>
+
+                <% if (!test.start_time || new Date() >= new Date(test.start_time)) { %>
+                    <% if (!test.attempts_left || test.attempts_left > 0) { %>
+                        <a href="/test/<%= test.id %>"><button>Start Test</button></a>
+                    <% } else { %>
+                        <em>No attempts left</em>
+                    <% } %>
+                <% } else { %>
+                    <em>Not available yet</em>
+                <% } %>
+            </li>
+        <% }) %>
+        </ul>
+    <% } %>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>

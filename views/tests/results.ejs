@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Results</title>
+</head>
+<body>
+    <h1>Results for <%= testTitle %></h1>
+
+    <% if (results.length === 0) { %>
+        <p>No students have taken this test yet.</p>
+    <% } else { %>
+        <ul>
+            <% results.forEach(result => { %>
+                <li>
+                    <strong><%= result.student_name %></strong> —
+                    <%= result.score_percent %>% —
+                    <%= new Date(result.submitted_at).toLocaleString() %>
+                    —
+                    Status:
+                    <%= result.is_checked ? "✅ Checked" : "🕒 Waiting" %>
+                    —
+                    <a href="/result/<%= result.id %>">View Details</a>
+                    
+                    <% if (!result.is_checked) { %>
+                        <form method="POST" action="/test/<%= testId %>/result/<%= result.id %>/check">
+                            <button type="submit">Mark as Checked</button>
+                        </form>
+                    <% } %>
+                </li>
+            <% }) %>            
+        </ul>
+    <% } %>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>

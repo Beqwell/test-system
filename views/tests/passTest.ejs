@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pass Test</title>
+    <script defer src="/js/timer.js"></script>
+</head>
+<body data-timer="<%= test.time_limit_minutes || 0 %>">
+    <h1>Test: <%= test.title %></h1>
+
+    <div id="timer-box" style="display:none; margin-bottom: 15px;">
+        <strong>Time Left:</strong> <span id="timer"></span>
+    </div>
+
+    <form method="POST" action="/submit-test/<%= test.id %>" id="test-form">
+        <% questions.forEach((q, index) => { %>
+            <div style="margin-bottom: 20px;">
+                <strong><%= index + 1 %>. <%= q.text %></strong><br>
+
+                <% if (q.type === 'one') { %>
+                    <% q.answers.forEach(a => { %>
+                        <label>
+                            <input type="radio" name="answer_<%= q.id %>" value="<%= a.id %>">
+                            <%= a.text %>
+                        </label><br>
+                    <% }) %>
+                <% } else if (q.type === 'multi') { %>
+                    <% q.answers.forEach(a => { %>
+                        <label>
+                            <input type="checkbox" name="answer_<%= q.id %>" value="<%= a.id %>">
+                            <%= a.text %>
+                        </label><br>
+                    <% }) %>
+                <% } else if (q.type === 'text') { %>
+                    <input type="text" name="answer_<%= q.id %>"><br>
+                <% } else if (q.type === 'number') { %>
+                    <input type="number" step="any" name="answer_<%= q.id %>"><br>
+                <% } %>
+            </div>
+        <% }) %>
+
+        <button type="submit">Submit Test</button>
+    </form>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>

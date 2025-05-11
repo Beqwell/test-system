@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Tests</title>
+</head>
+<body>
+    <h1>Available Tests for Course</h1>
+
+    <% if (!tests || tests.length === 0) { %>
+        <p>No available tests at this time.</p>
+    <% } else { %>
+        <ul>
+            <% tests.forEach(test => {
+                const now = new Date();
+                const startTime = test.start_time ? new Date(test.start_time) : null;
+                const endTime = test.end_time ? new Date(test.end_time) : null;
+                const notStarted = startTime && now < startTime;
+                const attemptsLeft = typeof test.attempts_left === 'number' ? test.attempts_left : null;
+            %>
+                <li style="margin-bottom: 20px;">
+                    <strong><%= test.title || 'Untitled Test' %></strong><br>
+
+                    <% if (test.attempts_made > 0) { %>
+                        <% if (test.is_checked === false) { %>
+                            <em>Awaiting grading</em><br>
+                        <% } else if (test.last_score !== null) { %>
+                            Last score: <strong><%= test.last_score %>%</strong><br>
+                        <% } else { %>
+                            <em>Attempt submitted</em><br>
+                        <% } %>
+                    <% } else { %>
+                        <em>Not attempted yet</em><br>
+                    <% } %>
+
+                    Time Limit: <%= test.time_limit_minutes != null ? test.time_limit_minutes + ' min' : '-' %><br>
+                    Start: <%= startTime ? startTime.toLocaleString() : '-' %><br>
+                    End: <%= endTime ? endTime.toLocaleString() : '-' %><br>
+
+                    Attempts: 
+                    <%= test.attempts_made != null ? test.attempts_made : '-' %> /
+                    <%= test.max_attempts != null && test.max_attempts !== 0 ? test.max_attempts : '∞' %><br>
+
+                    <% if (notStarted) { %>
+                        <em>Test not yet available</em>
+                    <% } else if (attemptsLeft === 0) { %>
+                        <em>You have no attempts left</em>
+                    <% } else { %>
+                        <a href="/test/<%= test.id %>"><button>Start Test</button></a>
+                    <% } %>
+                </li>
+            <% }) %>
+        </ul>
+    <% } %>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>

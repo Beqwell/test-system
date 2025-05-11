@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Courses</title>
+</head>
+<body>
+    <h1>Welcome, <%= username %> (Teacher)</h1>
+
+    <h2>Your Courses</h2>
+    <ul>
+        <% courses.forEach(course => { %>
+            <li>
+                <%= course.name %> (Join Code: <%= course.join_code %>)
+                — <a href="/course/<%= course.id %>/tests">View Tests</a>
+                — <a href="/course/<%= course.id %>/create-test">Create Test</a>
+                — <a href="/course/<%= course.id %>/students">View Students</a>
+                — <a href="/delete-course/<%= course.id %>" onclick="return confirm('Are you sure you want to delete this course?');">Delete Course</a>
+            </li>
+        <% }) %>
+    </ul>
+    
+
+    <h2>Create a new Course</h2>
+    <form method="POST" action="/create-course">
+        <input type="text" name="name" placeholder="Course name" required>
+        <button type="submit">Create</button>
+    </form>
+
+    <br><a href="/logout">Logout</a>
+</body>
+</html>

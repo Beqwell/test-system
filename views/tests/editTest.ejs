@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Test</title>
+</head>
+<body>
+    <h1>Edit Test: <%= test.title %></h1>
+
+    <form method="POST" action="/test/<%= test.id %>/edit">
+        <label>Test Title:</label><br>
+        <input type="text" name="title" value="<%= test.title %>" required><br><br>
+
+        <label>Visible to Students:</label><br>
+        <label>
+            <input type="radio" name="is_visible" value="true" <%= test.is_visible ? 'checked' : '' %>> Yes
+        </label>
+        <label>
+            <input type="radio" name="is_visible" value="false" <%= !test.is_visible ? 'checked' : '' %>> No
+        </label>
+        <br><br>
+
+        <label>Start Time:</label><br>
+        <input type="datetime-local" name="start_time"
+            value="<%= test.start_time ? new Date(test.start_time).toISOString().slice(0, 16) : '' %>"><br><br>
+
+        <label>End Time:</label><br>
+        <input type="datetime-local" name="end_time"
+            value="<%= test.end_time ? new Date(test.end_time).toISOString().slice(0, 16) : '' %>"><br><br>
+
+        <label>Time Limit (minutes):</label><br>
+        <input type="number" name="time_limit_minutes"
+            value="<%= test.time_limit_minutes ?? '' %>" min="0"><br><br>
+
+        <label>Max Attempts:</label><br>
+        <input type="number" name="max_attempts"
+            value="<%= test.max_attempts ?? '' %>" min="0"><br><br>
+
+        <label>Show Result to Student:</label><br>
+        <input type="checkbox" name="show_result_to_student"
+            <%= test.show_result_to_student ? 'checked' : '' %>><br><br>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <% if (!test.is_visible) { %>
+        <form method="POST" action="/test/<%= test.id %>/force-visible" style="margin-top: 20px;">
+            <button type="submit" onclick="return confirm('Make this test visible now?')">
+                Force Open Test Now
+            </button>
+        </form>
+    <% } %>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>

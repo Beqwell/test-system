@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Students in Course</title>
+</head>
+<body>
+  <h1>Students in This Course</h1>
+
+  <% if (students.length === 0) { %>
+    <p>No students have joined this course yet.</p>
+  <% } else { %>
+    <ul>
+      <% students.forEach(student => { %>
+        <li>
+          <%= student.username %>
+          <form method="POST" action="/course/<%= courseId %>/remove-student/<%= student.id %>" style="display:inline;">
+            <button type="submit" onclick="return confirm('Remove student <%= student.username %>?')">❌ Remove</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <br><a href="/dashboard">Back to Dashboard</a>
+</body>
+</html>

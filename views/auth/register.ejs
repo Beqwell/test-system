@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --violet: #7c3aed;
+      --violet-dark: #5b21b6;
+      --gradient-bg: linear-gradient(135deg, #ede9fe, #f5f3ff);
+      --text-dark: #2e1065;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--gradient-bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .register-card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1);
+      padding: 2.5rem;
+      max-width: 460px;
+      width: 100%;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .register-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .register-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd6fe;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--violet);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+
+    .btn-register {
+      width: 100%;
+      background-color: var(--violet);
+      color: white;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.25s;
+    }
+
+    .btn-register:hover {
+      background-color: var(--violet-dark);
+    }
+
+    .error-message {
+      background-color: #fef2f2;
+      color: #b91c1c;
+      padding: 0.75rem;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .register-footer {
+      text-align: center;
+      margin-top: 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    .register-footer a {
+      color: var(--violet);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .register-card {
+        padding: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-card">
+    <h1 class="register-title">Create an account</h1>
+    <p class="register-subtitle">Sign up as a student or teacher</p>
+
+    <% if (error) { %>
+      <div class="error-message"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/register">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="">Select role</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-register">Register</button>
+    </form>
+
+    <div class="register-footer">
+      Already have an account? <a href="/login">Login</a>
+    </div>
+  </div>
+
+</body>
+</html>

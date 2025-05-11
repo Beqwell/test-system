@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Test</title>
+</head>
+<body>
+    <h1>Create New Test</h1>
+
+    <form method="POST" action="/course/<%= courseId %>/create-test">
+        <label>Test Title:</label><br>
+        <input type="text" name="title" required><br><br>
+
+        <label>Make Test Visible Immediately:</label><br>
+        <input type="checkbox" name="is_visible"><br><br>
+
+        <label>Start Date and Time (optional):</label><br>
+        <input type="datetime-local" name="start_time"><br><br>
+
+        <label>End Date and Time (optional):</label><br>
+        <input type="datetime-local" name="end_time"><br><br>
+
+        <label>Time Limit (in minutes, optional):</label><br>
+        <input type="number" name="time_limit_minutes" min="1"><br><br>
+
+        <label>Maximum Attempts:</label><br>
+        <input type="number" name="max_attempts" min="0" placeholder="0 = unlimited"><br><br>                
+
+        <button type="submit">Create Test</button>
+    </form>
+
+    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+</body>
+</html>
