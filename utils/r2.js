@@ -25,7 +25,8 @@ async function uploadToR2(localFilePath, fileName) {
 
   await s3.upload(params).promise();
 
-  return `https://${process.env.R2_BUCKET}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${fileName}`;
+  return `https://pub-f2bb3377a5c94786b1a01ba222a4a3fb.r2.dev/${fileName}`;
+
 }
 
 module.exports = { uploadToR2 };

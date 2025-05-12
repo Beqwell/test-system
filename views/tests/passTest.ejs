@@ -8,11 +8,27 @@
 <body data-timer="<%= test.time_limit_minutes || 0 %>">
     <h1>Test: <%= test.title %></h1>
 
-    <div id="timer-box" style="display:none; margin-bottom: 15px;">
-        <strong>Time Left:</strong> <span id="timer"></span>
+    <div id="timer-box" style="
+        display: none;
+        position: fixed;
+        top: 10px;
+        right: 15px;
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        padding: 10px 15px;
+        font-weight: bold;
+        border-radius: 6px;
+        z-index: 9999;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    ">
+        ⏳ Time Left: <span id="timer"></span>
     </div>
 
+
     <form method="POST" action="/submit-test/<%= test.id %>" id="test-form">
+
+        <input type="hidden" name="result_id" value="<%= resultId %>">
         <% questions.forEach((q, index) => { %>
             <div style="margin-bottom: 20px;">
                 <strong><%= index + 1 %>. <%= q.text %></strong><br>

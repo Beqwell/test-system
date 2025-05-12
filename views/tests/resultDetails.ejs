@@ -20,6 +20,8 @@
   %>
     <div style="margin-bottom:25px; padding:10px; border:1px solid #ccc;">
       <strong><%= i + 1 %>. <%= q.question_text %></strong><br><br>
+        <%- renderAttachmentHTML(q.attachment_path) %>
+
 
       <% if (q.question_type === 'one' || q.question_type === 'multi') { %>
         <ul>

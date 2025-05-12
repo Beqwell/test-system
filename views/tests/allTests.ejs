@@ -24,7 +24,9 @@
 
                 <% if (!test.start_time || new Date() >= new Date(test.start_time)) { %>
                     <% if (!test.attempts_left || test.attempts_left > 0) { %>
-                        <a href="/test/<%= test.id %>"><button>Start Test</button></a>
+                        <form method="GET" action="/test/<%= test.id %>" style="display: inline;">
+                            <button type="submit">Start Test</button>
+                        </form>
                     <% } else { %>
                         <em>No attempts left</em>
                     <% } %>

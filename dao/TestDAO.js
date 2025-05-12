@@ -121,9 +121,9 @@ class TestDAO {
     static async saveResult(testId, studentId, correct, total, percent, isChecked) {
         const query = `
             INSERT INTO results (
-                test_id, student_id, correct_count, total_count, score_percent, is_checked
+                test_id, student_id, correct_count, total_count, score_percent, is_checked, submitted_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6)
+            VALUES ($1, $2, $3, $4, $5, $6, now())
             RETURNING id
         `;
         const { rows } = await db.query(query, [
@@ -131,6 +131,7 @@ class TestDAO {
         ]);
         return rows[0].id;
     }
+
     
     
 static async saveSubmittedAnswer(resultId, questionId, answerText, answerId = null, skipDelete = false) {
@@ -292,6 +293,8 @@ static async getLastResultPercent(testId, studentId) {
         q.id              AS question_id,
         q.question_text,
         q.question_type,
+        q.attachment_path,
+
 
         a.id              AS answer_id,
         a.answer_text,
@@ -335,6 +338,7 @@ static async getLastResultPercent(testId, studentId) {
             id: qid,
             question_text: row.question_text,
             question_type: row.question_type,
+            attachment_path: row.attachment_path || null,
             // Сохраняем массив всех выбранных answer_id
             student_selected_ids: row.student_selected_ids || [],
             answers: [],
@@ -517,6 +521,19 @@ static async getLastResultPercent(testId, studentId) {
 
     return { total, correctPoints, percent };
     }
+
+    static async updateResultSummary(resultId, correctCount, totalCount, scorePercent, isChecked) {
+    const query = `
+        UPDATE results
+        SET correct_count = $2,
+            total_count   = $3,
+            score_percent = $4,
+            is_checked    = $5
+        WHERE id = $1
+    `;
+    await db.query(query, [resultId, correctCount, totalCount, scorePercent, isChecked]);
+}
+
 
     
 

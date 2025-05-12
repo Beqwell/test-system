@@ -5,6 +5,7 @@ const url = require('url');
 const cookie = require('cookie');
 const crypto = require('crypto');
 const { parse } = require('querystring');
+const { renderAttachmentHTML } = require('../utils/viewHelpers');
 const db = require('../utils/db');
 const TestDAO = require('../dao/TestDAO');
 const CourseDAO = require('../dao/CourseDAO');
@@ -86,7 +87,8 @@ module.exports = (router) => {
           questions,
           resultId,
           previewPercent,
-          backUrl: `/course/${courseId}/tests`
+          backUrl: `/course/${courseId}/tests`,
+          renderAttachmentHTML
         });
       } catch (err) {
         console.error('Error loading result detail:', err);

@@ -29,7 +29,8 @@ module.exports = (router) => {
         try {
             // First, we retrieve the test itself
             const test = await TestDAO.getTestById(testId);
-    
+            //console.log('[DEBUG] test.time_limit_minutes =', test.time_limit_minutes);
+
             if (!test || !test.is_visible) {
                 res.writeHead(403, { 'Content-Type': 'text/plain' });
                 res.end('Test is not available.');
@@ -50,12 +51,49 @@ module.exports = (router) => {
             }
     
             const attempts = await TestDAO.getAttemptsCount(testId, user.id);
-    
+
             if (test.max_attempts && attempts >= test.max_attempts) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('You have reached the maximum number of attempts for this test.');
-                return;
-            } 
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('You have reached the maximum number of attempts for this test.');
+            return;
+            }
+
+            const alreadyPassed = await db.query(`
+            SELECT is_checked FROM results
+            WHERE test_id = $1 AND student_id = $2
+            ORDER BY id DESC
+            LIMIT 1
+            `, [testId, user.id]);
+
+            if (alreadyPassed.rows.length > 0 && alreadyPassed.rows[0].is_checked) {
+            res.writeHead(302, { Location: '/dashboard' });
+            res.end();
+            return;
+            }
+
+            const recent = await db.query(`
+            SELECT id
+            FROM results
+            WHERE test_id = $1
+                AND student_id = $2
+                AND submitted_at >= now() - interval '2 seconds'
+            ORDER BY id DESC
+            LIMIT 1
+            `, [testId, user.id]);
+
+            let resultId;
+
+            if (recent.rows.length > 0) {
+            resultId = recent.rows[0].id;
+            console.log('[DEBUG] Using existing resultId =', resultId);
+            } else {
+            resultId = await TestDAO.saveResult(testId, user.id, 0, 0, 0, false);
+            console.log('[DEBUG] Created new resultId =', resultId);
+            }
+
+
+
+
             
             // Next, we retrieve the questions and answers
             const rawQuestions = await TestDAO.getQuestionsAndAnswersByTest(testId);
@@ -87,6 +125,7 @@ module.exports = (router) => {
             renderView(res, 'tests/passTest.ejs', {
                 test,
                 questions,
+                resultId,
                 backUrl: `/course/${test.course_id}/tests`,
                 renderAttachmentHTML 
             });
@@ -115,6 +154,8 @@ module.exports = (router) => {
 
             const testId = req.params.testId;
             const parsed = parse(body);
+            console.log('[DEBUG] POST /submit-test → parsed.result_id =', parsed.result_id);
+
             console.log('Parsed body:', parsed);
             try {
                 // Retrieve all questions and answers
@@ -208,7 +249,8 @@ module.exports = (router) => {
 
                 const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-                const resultId = await TestDAO.saveResult(testId, user.id, correct, total, percent, isChecked);
+                const resultId = parseInt(parsed.result_id, 10);
+                await TestDAO.updateResultSummary(resultId, correct, total, percent, isChecked);
 
 
                 for (const qId of Object.keys(questionsMap)) {

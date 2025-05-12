@@ -1,3 +1,5 @@
+//console.log('[TIMER] Script loaded');
+
 let timerMinutes = parseInt(document.body.getAttribute('data-timer'));
 let remainingSeconds = timerMinutes * 60;
 
@@ -10,7 +12,15 @@ function formatTime(sec) {
 function updateTimer() {
     if (remainingSeconds <= 0) {
         clearInterval(timerInterval);
-        document.getElementById('test-form').submit();
+
+        const form = document.getElementById('test-form');
+        if (form) {
+            form.submit();
+        }
+
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 3000);
     } else {
         document.getElementById('timer').textContent = formatTime(remainingSeconds);
         remainingSeconds--;
@@ -20,7 +30,10 @@ function updateTimer() {
 let timerInterval;
 window.addEventListener('DOMContentLoaded', () => {
     if (!isNaN(timerMinutes) && timerMinutes > 0) {
-        document.getElementById('timer-box').style.display = 'block';
+        const timerBox = document.getElementById('timer-box');
+        if (timerBox) {
+            timerBox.style.display = 'block';
+        }
         updateTimer();
         timerInterval = setInterval(updateTimer, 1000);
     }

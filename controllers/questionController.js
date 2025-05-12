@@ -67,7 +67,7 @@ module.exports = (router) => {
         multiples: false,
         maxFileSize: 5 * 1024 * 1024,
         allowEmptyFiles: true,
-        minFileSize: 0 // ✅ дозволити 0 байт
+        minFileSize: 0 // дозволити 0 байт
         });
 
 
@@ -146,7 +146,7 @@ module.exports = (router) => {
 
 
 
-                // ✅ Перевірка правильних відповідей
+                // Перевірка правильних відповідей
                 let correctCount = 0;
                 let correctIndex = -1;
 
@@ -169,7 +169,7 @@ module.exports = (router) => {
                     }
                 }
 
-                // ✅ Створення питання
+                // Створення питання
                 const question = await TestDAO.createQuestion(testId, questionText, questionType, attachmentPath);
 
                 if (isTextOrNumber) {

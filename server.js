@@ -34,9 +34,40 @@ require('./controllers/testPassingController')(router);
 require('./controllers/resultController')(router);
 require('./controllers/questionController')(router);
 
+// Middleware to parse cookies
+const mimeTypes = {
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon'
+};
+
+// Middleware to serve static files
+const serveStatic = (req, res) => {
+    const parsedUrl = url.parse(req.url);
+    const safePath = path.normalize(parsedUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
+    const filePath = path.join(__dirname, 'public', safePath);
+    const ext = path.extname(filePath);
+
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        const mime = mimeTypes[ext] || 'application/octet-stream';
+        res.writeHead(200, { 'Content-Type': mime });
+        fs.createReadStream(filePath).pipe(res);
+        return true;
+    }
+
+    return false;
+};
+
 // Start the server
 const server = http.createServer((req, res) => {
-    router.handle(req, res);
+    if (!serveStatic(req, res)) {
+        router.handle(req, res);
+    }
 });
 
 server.listen(PORT, () => {
