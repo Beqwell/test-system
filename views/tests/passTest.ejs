@@ -17,6 +17,8 @@
             <div style="margin-bottom: 20px;">
                 <strong><%= index + 1 %>. <%= q.text %></strong><br>
 
+                <%- renderAttachmentHTML(q.attachment_path) %>
+
                 <% if (q.type === 'one') { %>
                     <% q.answers.forEach(a => { %>
                         <label>
@@ -43,6 +45,5 @@
     </form>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
-
 </body>
 </html>

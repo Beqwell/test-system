@@ -6,6 +6,7 @@ const cookie = require('cookie');
 const crypto = require('crypto');
 const { parse } = require('querystring');
 const TestDAO = require('../dao/TestDAO');
+const { renderAttachmentHTML } = require('../utils/viewHelpers');
 const db = require('../utils/db');
 const CourseDAO = require('../dao/CourseDAO');
 const QuestionDAO = require('../dao/QuestionDAO');
@@ -67,6 +68,7 @@ module.exports = (router) => {
                         id: row.question_id,
                         text: row.question_text,
                         type: row.question_type,
+                        attachment_path: row.attachment_path || null,
                         answers: []
                     };
                 }
@@ -85,7 +87,8 @@ module.exports = (router) => {
             renderView(res, 'tests/passTest.ejs', {
                 test,
                 questions,
-                backUrl: `/course/${test.course_id}/tests`
+                backUrl: `/course/${test.course_id}/tests`,
+                renderAttachmentHTML 
             });
     
         } catch (err) {

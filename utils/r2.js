@@ -1,15 +1,15 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const fs = require('fs');
-const path = require('path');
 
-const endpoint = new AWS.Endpoint(`${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`);
+const endpoint = new AWS.Endpoint(`https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`);
+console.log('[DEBUG] Using endpoint:', endpoint.href);
 
 const s3 = new AWS.S3({
   endpoint,
   accessKeyId: process.env.R2_ACCESS_KEY,
   secretAccessKey: process.env.R2_SECRET_KEY,
-  region: 'auto',
+  region: '', 
   signatureVersion: 'v4',
 });
 

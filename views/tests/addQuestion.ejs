@@ -7,7 +7,7 @@
 <body>
     <h1>Add Question to Test</h1>
 
-    <form method="POST" action="/test/<%= testId %>/add-question">
+    <form method="POST" action="/test/<%= testId %>/add-question" enctype="multipart/form-data">
         <label>Question Text:</label><br>
         <input type="text" name="question_text" required><br><br>
 
@@ -28,12 +28,19 @@
             <h2>Answers</h2>
             <div id="answers-container"></div>
         </div>
+
         <div id="manual-answer-block" style="display:none;">
             <h2>Correct Answer (optional)</h2>
             <label>Expected Answer:</label><br>
             <input type="text" name="manual_correct_answer"><br><br>
         </div>
-        
+
+        <hr>
+        <h2>Attachment (optional)</h2>
+        <input type="file" name="attachment" accept=".png,.jpg,.jpeg,.pdf" onchange="validateFile(this)">
+        <p style="color:gray; font-size: 0.9em;">Allowed: .png, .jpg, .jpeg, .pdf — max 5MB</p>
+        <div id="preview" style="margin-top:10px;"></div>
+
         <button type="submit">Add Question</button>
     </form>
 
@@ -52,7 +59,6 @@
     </ul>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
-
 
     <script>
         const questionTypeSelect = document.getElementById('question_type');
@@ -76,8 +82,8 @@
 
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.name = `answer_text_${i}`;
-                input.required = true;
+                input.name = 'answer_text_' + i; 
+                input.value = '';
                 answerDiv.appendChild(input);
 
                 answerDiv.appendChild(document.createElement('br'));
@@ -110,20 +116,53 @@
             const type = questionTypeSelect.value;
             const isManual = type === 'text' || type === 'number';
             const manualAnswerBlock = document.getElementById('manual-answer-block');
-        
+
             answersBlock.style.display = isManual ? 'none' : 'block';
             answerCountBlock.style.display = isManual ? 'none' : 'block';
             manualAnswerBlock.style.display = isManual ? 'block' : 'none';
-        
+
             if (!isManual) {
                 generateAnswers();
             }
-        
+
             const answerInputs = answersContainer.querySelectorAll('input[type="text"]');
             answerInputs.forEach(input => input.required = !isManual);
         }
-        
-        
+
+        function validateFile(input) {
+            const file = input.files[0];
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+
+            if (!file) return;
+
+            const maxSize = 5 * 1024 * 1024;
+            const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Invalid file type!");
+                input.value = "";
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert("File is too large! Max 5MB.");
+                input.value = "";
+                return;
+            }
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.maxWidth = '300px';
+                img.style.marginTop = '10px';
+                preview.appendChild(img);
+            } else if (file.type === 'application/pdf') {
+                const div = document.createElement('div');
+                div.innerHTML = `📄 File ready to upload: <strong>${file.name}</strong>`;
+                preview.appendChild(div);
+            }
+        }
 
         questionTypeSelect.addEventListener('change', toggleAnswersBlock);
         answerCountInput.addEventListener('input', generateAnswers);

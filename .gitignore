@@ -48,4 +48,4 @@ build/
 coverage/
 
 # === Public assets (excluded to protect sensitive/static files) ===
-public/e/
+public/е/

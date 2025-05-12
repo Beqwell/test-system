@@ -30,15 +30,23 @@ class TestDAO {
             }
 
     static async getQuestionsAndAnswersByTest(testId) {
-        const query = `
-            SELECT q.id as question_id, q.question_text, q.question_type, a.id as answer_id, a.answer_text, a.is_correct
-            FROM questions q
-            LEFT JOIN answers a ON q.id = a.question_id
-            WHERE q.test_id = $1
-        `;
-        const { rows } = await db.query(query, [testId]);
-        return rows;
-    }
+    const query = `
+        SELECT 
+            q.id as question_id, 
+            q.question_text, 
+            q.question_type,
+            q.attachment_path,
+            a.id as answer_id, 
+            a.answer_text, 
+            a.is_correct
+        FROM questions q
+        LEFT JOIN answers a ON q.id = a.question_id
+        WHERE q.test_id = $1
+    `;
+    const { rows } = await db.query(query, [testId]);
+    return rows;
+}
+
     
 
     static async deleteTest(testId) {
@@ -46,11 +54,18 @@ class TestDAO {
         await db.query(query, [testId]);
     }
 
-    static async createQuestion(testId, questionText, questionType) {
-        const query = 'INSERT INTO questions (test_id, question_text, question_type) VALUES ($1, $2, $3) RETURNING *';
-        const { rows } = await db.query(query, [testId, questionText, questionType]);
+    static async createQuestion(testId, questionText, questionType, attachmentPath = null) {
+        const query = `
+            INSERT INTO questions (test_id, question_text, question_type, attachment_path)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+        `;
+        const { rows } = await db.query(query, [
+            testId, questionText, questionType, attachmentPath
+        ]);
         return rows[0];
     }
+
     
     static async getTestById(testId) {
         const query = `
@@ -173,7 +188,7 @@ static async getLastResultPercent(testId, studentId) {
                 a.answer_text,
                 sa.answer_text AS submitted_text,
                 sa.answer_id AS submitted_answer_id,
-                sa.is_correct_checked,
+                sa.is_correct_checked
             FROM questions q
             LEFT JOIN answers a ON a.question_id = q.id
             LEFT JOIN answers_submitted sa ON sa.question_id = q.id AND sa.result_id = $1

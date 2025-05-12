@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const url = require('url');
 const cookie = require('cookie');
-const formidable = require('formidable');
+const { IncomingForm } = require('formidable');
 const crypto = require('crypto');
 const { parse } = require('querystring');
 const { uploadToR2 } = require('../utils/r2');
@@ -37,6 +37,7 @@ module.exports = (router) => {
                         question_id: row.question_id,
                         question_text: row.question_text,
                         is_multi_answer: row.is_multi_answer,
+                        attachment_path: row.attachment_path || null,
                         answers: []
                     };
                 }
@@ -62,95 +63,153 @@ module.exports = (router) => {
     }); // Get questions for test route
 
     router.post('/test/:testId/add-question', (req, res) => {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
+        const form = new IncomingForm({
+        multiples: false,
+        maxFileSize: 5 * 1024 * 1024,
+        allowEmptyFiles: true,
+        minFileSize: 0 // ✅ дозволити 0 байт
         });
-    
-        req.on('end', async () => {
+
+
+
+        form.parse(req, async (err, fields, files) => {
+                console.log('[DEBUG] Formidable fields:', fields);
+                console.log('[DEBUG] Formidable files:', files);
             const user = authMiddleware(req);
-    
+
             if (!user || user.role !== 'teacher') {
                 res.writeHead(302, { Location: '/login' });
                 res.end();
                 return;
             }
-    
+
+            if (err) {
+                console.error('Form error:', err);
+                res.writeHead(400, { 'Content-Type': 'text/plain' });
+                res.end('Invalid form');
+                return;
+            }
+
             const testId = req.params.testId;
-            const parsed = parse(body);
-    
-            const questionText = parsed.question_text;
-            const questionType = parsed.question_type;
-            const answerCount = parseInt(parsed.answer_count) || 0;
-    
+
+            const rawText = fields.question_text;
+            const questionText = typeof rawText === 'string' ? rawText.trim() : String(rawText || '').trim();
+
+            const rawType = fields.question_type;
+            const questionType = typeof rawType === 'string' ? rawType.trim() : String(rawType || '').trim();
+
+            const answerCount = parseInt(fields.answer_count || '0');
             const isTextOrNumber = questionType === 'text' || questionType === 'number';
             const isMultiAnswer = questionType === 'multi';
-    
+
+
+            let attachmentPath = null;
+            let file = null;
+
+            if (files.attachment) {
+                file = Array.isArray(files.attachment)
+                    ? files.attachment[0]
+                    : files.attachment;
+
+                console.log('[DEBUG] Attachment info:', {
+                    name: file.originalFilename,
+                    size: file.size,
+                    type: file.mimetype
+                });
+            }
+
+           
+
             try {
-                // Валідація — якщо type=one, дозволено тільки 1 правильна
+                if (
+                    file &&
+                    file.size > 0 &&
+                    file.originalFilename &&
+                    file.originalFilename.trim() !== ''
+                ) {
+                    const ext = path.extname(file.originalFilename).toLowerCase();
+                    const mime = file.mimetype;
+                    const allowed = ['.png', '.jpg', '.jpeg', '.pdf'];
+                    const allowedMime = ['image/png', 'image/jpeg', 'application/pdf'];
+
+                    if (!allowed.includes(ext) || !allowedMime.includes(mime)) {
+                        res.writeHead(400, { 'Content-Type': 'text/plain' });
+                        res.end('Invalid file type');
+                        return;
+                    }
+
+                    const filename = `question-${Date.now()}${ext}`;
+                    console.log('[DEBUG] Uploading file to R2:', file.filepath, 'as', filename);
+
+                    attachmentPath = await uploadToR2(file.filepath, filename);
+                }
+
+
+
+                // ✅ Перевірка правильних відповідей
                 let correctCount = 0;
                 let correctIndex = -1;
-    
+
                 if (questionType === 'one' || questionType === 'multi') {
                     for (let i = 0; i < answerCount; i++) {
                         if (questionType === 'one') {
-                            if (parsed.is_correct == i.toString()) {
+                            if (fields.is_correct == i.toString()) {
                                 correctIndex = i;
                                 correctCount++;
                             }
                         } else if (questionType === 'multi') {
-                            if (parsed[`is_correct_${i}`]) correctCount++;
+                            if (fields[`is_correct_${i}`]) correctCount++;
                         }
                     }
-                
+
                     if (questionType === 'one' && correctCount !== 1) {
                         res.writeHead(400, { 'Content-Type': 'text/plain' });
                         res.end('Exactly one answer must be marked correct.');
                         return;
                     }
                 }
-                
-                
-    
-                // Створити питання
-                const question = await TestDAO.createQuestion(testId, questionText, questionType);
-    
+
+                // ✅ Створення питання
+                const question = await TestDAO.createQuestion(testId, questionText, questionType, attachmentPath);
+
                 if (isTextOrNumber) {
-                    const correctAnswerText = parsed.manual_correct_answer;
-                    if (correctAnswerText && correctAnswerText.trim() !== '') {
-    
-                          
-                        await TestDAO.createAnswer(question.id, correctAnswerText.trim(), true);
+                    const rawCorrect = fields.manual_correct_answer;
+                    const correctAnswerText = typeof rawCorrect === 'string' ? rawCorrect.trim() : String(rawCorrect || '').trim();
+
+                    if (correctAnswerText !== '') {
+                        await TestDAO.createAnswer(question.id, correctAnswerText, true);
                     }
                 }
-    
-                // Якщо text/number — не створюємо відповіді
+
                 if (!isTextOrNumber) {
                     for (let i = 0; i < answerCount; i++) {
-                        const answerText = parsed[`answer_text_${i}`];
+                        const raw = fields[`answer_text_${i}`];
+                        const answerText = typeof raw === 'string' ? raw : String(raw).trim();
+
                         let isCorrect = false;
-    
+
                         if (questionType === 'one') {
                             isCorrect = (i === correctIndex);
                         } else if (questionType === 'multi') {
-                            isCorrect = parsed[`is_correct_${i}`] ? true : false;
+                            isCorrect = fields[`is_correct_${i}`] ? true : false;
                         }
-    
+
                         if (answerText) {
                             await TestDAO.createAnswer(question.id, answerText, isCorrect);
                         }
                     }
                 }
-    
+
                 res.writeHead(302, { Location: `/test/${testId}/add-question` });
                 res.end();
             } catch (err) {
-                console.error('Error adding question:', err);
+                console.error('Error saving question:', err);
                 res.writeHead(500, { 'Content-Type': 'text/plain' });
                 res.end('Server error');
             }
         });
-    }); // Add question route
+    });
+    // Add question route
 
     router.get('/delete-question/:questionId', async (req, res) => {
         const user = authMiddleware(req);
