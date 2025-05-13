@@ -7,6 +7,10 @@
 <body>
     <h1>All Available Tests</h1>
 
+    <h3 style="color: green;">
+        🧮 Your average score across all courses: <%= averageScore %>%
+    </h3>
+
     <% if (tests.length === 0) { %>
         <p>No tests available.</p>
     <% } else { %>
@@ -39,6 +43,5 @@
     <% } %>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
-
 </body>
 </html>

@@ -7,6 +7,14 @@
 <body>
     <h1>Edit Test: <%= test.title %></h1>
 
+    <% function toLocalDatetime(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const offset = d.getTimezoneOffset();
+        d.setMinutes(d.getMinutes() - offset);
+        return d.toISOString().slice(0, 16);
+    } %>
+
     <form method="POST" action="/test/<%= test.id %>/edit">
         <label>Test Title:</label><br>
         <input type="text" name="title" value="<%= test.title %>" required><br><br>
@@ -22,11 +30,11 @@
 
         <label>Start Time:</label><br>
         <input type="datetime-local" name="start_time"
-            value="<%= test.start_time ? new Date(test.start_time).toISOString().slice(0, 16) : '' %>"><br><br>
+            value="<%= toLocalDatetime(test.start_time) %>"><br><br>
 
         <label>End Time:</label><br>
         <input type="datetime-local" name="end_time"
-            value="<%= test.end_time ? new Date(test.end_time).toISOString().slice(0, 16) : '' %>"><br><br>
+            value="<%= toLocalDatetime(test.end_time) %>"><br><br>
 
         <label>Time Limit (minutes):</label><br>
         <input type="number" name="time_limit_minutes"
@@ -52,6 +60,5 @@
     <% } %>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
-
 </body>
 </html>

@@ -9,4 +9,9 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
+// Set the timezone to Europe/Kyiv
+pool.on('connect', client => {
+    client.query("SET TIME ZONE 'Europe/Kyiv'");
+});
+
 module.exports = pool;

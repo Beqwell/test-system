@@ -39,12 +39,29 @@ module.exports = (router) => {
             res.end();
             return;
         }
-    
+
         const courseId = parseInt(req.params.courseId, 10);
-        const students = await CourseDAO.getStudentsByCourse(courseId);
-        renderView(res, 'courses/studentsList.ejs', { students, courseId, backUrl: '/courses'
-        });
-    }); // List students in course route
+
+        try {
+            const rawStudents = await CourseDAO.getStudentsByCourse(courseId);
+            const students = [];
+
+            for (const student of rawStudents) {
+                const avg = await CourseDAO.getAverageScoreForStudentInCourse(courseId, student.id);
+                students.push({ ...student, average_score: avg });
+            }
+
+            renderView(res, 'courses/studentsList.ejs', {
+                students,
+                courseId,
+                backUrl: '/courses'
+            });
+        } catch (err) {
+            console.error('Error loading students with averages:', err);
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Server error');
+        }
+    });// List students in course route
 
     router.post('/course/:courseId/remove-student/:studentId', async (req, res) => {
     const user = authMiddleware(req);
@@ -60,6 +77,6 @@ module.exports = (router) => {
     await CourseDAO.removeStudentFromCourse(courseId, studentId);
     res.writeHead(302, { Location: `/course/${courseId}/students` });
     res.end();
-}); // Remove student from course route
+    }); // Remove student from course route
 
 };

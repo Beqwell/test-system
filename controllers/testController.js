@@ -54,8 +54,14 @@ module.exports = (router) => {
                     test.is_checked = resultMeta.is_checked;
                 }
                 
-                renderView(res, 'tests/studentTestList.ejs', { tests: availableTests,
-                    backUrl: '/dashboard' });
+                const averageScore = await TestDAO.getCourseAverageScore(courseId, user.id);
+
+                renderView(res, 'tests/studentTestList.ejs', {
+                    tests: availableTests,
+                    backUrl: '/dashboard',
+                    averageScore
+                });
+
             } else {
                 res.writeHead(403, { 'Content-Type': 'text/plain' });
                 res.end('Forbidden');
@@ -100,11 +106,21 @@ module.exports = (router) => {
             const parsed = parse(body);
     
             const title = parsed.title;
-            const isVisible = parsed.is_visible === 'on'; // Чекбокс
-            const startTime = parsed.start_time ? new Date(parsed.start_time) : null;
-            const endTime = parsed.end_time ? new Date(parsed.end_time) : null;
+            const requestedVisible = parsed.is_visible === 'on';
+            const isVisible = requestedVisible;
+
+            const startTime = parsed.start_time && parsed.start_time !== 'false' && parsed.start_time.trim() !== ''
+                ? new Date(parsed.start_time)
+                : null;
+
+            const endTime = parsed.end_time && parsed.end_time !== 'false' && parsed.end_time.trim() !== ''
+                ? new Date(parsed.end_time)
+                : null;
+
+
             const timeLimit = parsed.time_limit_minutes ? parseInt(parsed.time_limit_minutes) : null;
             const maxAttempts = parsed.max_attempts ? parseInt(parsed.max_attempts) : null;
+
     
             if (!title) {
                 res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -113,7 +129,12 @@ module.exports = (router) => {
             }
     
             try {
-                const newTest = await TestDAO.createTest(courseId, title, isVisible, startTime, endTime, timeLimit, maxAttempts);
+                console.log('[DEBUG] Parsed start_time =', parsed.start_time);
+                console.log('[DEBUG] Parsed end_time   =', parsed.end_time);
+                console.log('[DEBUG] Final startTime   =', startTime);
+                console.log('[DEBUG] Final endTime     =', endTime);
+
+                const newTest = await TestDAO.createTest(courseId, title, false, startTime, endTime, timeLimit, maxAttempts, requestedVisible );
     
                 res.writeHead(302, { Location: `/test/${newTest.id}/add-question` });
                 res.end();
@@ -163,7 +184,7 @@ module.exports = (router) => {
     
             const testId = req.params.testId;
             const parsed = parse(body);
-    
+            
             // Отримуємо значення з форми
             const title = parsed.title;
             const isVisible = parsed.is_visible === 'true';
@@ -247,5 +268,27 @@ module.exports = (router) => {
             res.end('Server error');
         }
     }); // Delete test route
+
+    router.post('/test/:testId/publish', async (req, res) => {
+    const user = authMiddleware(req);
+    const testId = req.params.testId;
+
+    if (!user || user.role !== 'teacher') {
+        res.writeHead(302, { Location: '/login' });
+        return res.end();
+    }
+
+    try {
+        // робимо тест видимим
+        await db.query(`UPDATE tests SET is_visible = true WHERE id = $1`, [testId]);
+        res.writeHead(302, { Location: '/dashboard' });
+        res.end();
+    } catch (err) {
+        console.error('Error publishing test:', err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Server error');
+    }
+});
+
 
 };

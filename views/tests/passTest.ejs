@@ -61,5 +61,13 @@
     </form>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+
+<script>
+  console.log('[DEBUG] test page loaded');
+  setInterval(() => {
+    console.log('[DEBUG] still alive at', new Date().toISOString());
+  }, 3000);
+</script>
+
 </body>
 </html>

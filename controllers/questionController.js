@@ -235,4 +235,39 @@ module.exports = (router) => {
         }
     }); // Delete question route
 
+    router.post('/test/:testId/publish', async (req, res) => {
+        const user = authMiddleware(req);
+        const testId = req.params.testId;
+
+        if (!user || user.role !== 'teacher') {
+            res.writeHead(302, { Location: '/login' });
+            return res.end();
+        }
+
+        try {
+            // Отримати test і перевірити requested_visible
+            const test = await TestDAO.getTestById(testId);
+
+            if (!test) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                return res.end('Test not found');
+            }
+
+            // Включаємо is_visible тільки якщо раніше була галочка
+            const makeVisible = test.requested_visible === true;
+
+            await db.query(
+                `UPDATE tests SET is_visible = $1 WHERE id = $2`,
+                [makeVisible, testId]
+            );
+
+            res.writeHead(302, { Location: '/dashboard' });
+            res.end();
+        } catch (err) {
+            console.error('Error publishing test:', err);
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Server error');
+        }
+    });// Publish test route
+    
 };

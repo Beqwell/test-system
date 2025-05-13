@@ -56,6 +56,13 @@
         <% } else { %>
             <li>No questions yet.</li>
         <% } %>
+
+        <form method="POST" action="/test/<%= testId %>/publish" style="margin-top: 30px;">
+    <button type="submit" onclick="return confirm('Publish this test now?')">
+        ✅ Publish Test
+    </button>
+</form>
+
     </ul>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>

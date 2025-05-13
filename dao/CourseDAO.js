@@ -67,9 +67,29 @@ class CourseDAO {
         `;
         await db.query(query, [courseId, studentId]);
     }
-    
+ 
+    static async getAverageScoreForStudentInCourse(courseId, studentId) {
+        const query = `
+            SELECT AVG(COALESCE(sub.score_percent, 0)) AS avg_score
+            FROM (
+                SELECT DISTINCT ON (r.test_id) r.score_percent
+                FROM results r
+                JOIN tests t ON t.id = r.test_id
+                WHERE t.course_id = $1
+                AND t.is_visible = true
+                AND r.student_id = $2
+                ORDER BY r.test_id, r.submitted_at DESC
+            ) sub
+        `;
+        const { rows } = await db.query(query, [courseId, studentId]);
+        return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
+    }
+
+
     
 }
+
+
 
 
 module.exports = CourseDAO;

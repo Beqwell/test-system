@@ -10,16 +10,17 @@
   <% if (students.length === 0) { %>
     <p>No students have joined this course yet.</p>
   <% } else { %>
-    <ul>
-      <% students.forEach(student => { %>
-        <li>
-          <%= student.username %>
-          <form method="POST" action="/course/<%= courseId %>/remove-student/<%= student.id %>" style="display:inline;">
-            <button type="submit" onclick="return confirm('Remove student <%= student.username %>?')">❌ Remove</button>
-          </form>
-        </li>
-      <% }) %>
-    </ul>
+      <ul>
+        <% students.forEach(student => { %>
+          <li>
+            <strong><%= student.username %></strong>
+            (<span style="color:blue;">Avg Score: <%= student.average_score %>%</span>) &nbsp;
+            <form method="POST" action="/course/<%= courseId %>/remove-student/<%= student.id %>" style="display:inline;">
+              <button type="submit" onclick="return confirm('Remove student <%= student.username %>?')">❌ Remove</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
   <% } %>
 
   <br><a href="/dashboard">Back to Dashboard</a>

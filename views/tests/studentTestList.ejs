@@ -5,7 +5,22 @@
     <title>Available Tests</title>
 </head>
 <body>
-    <h1>Available Tests for Course</h1>
+    <h1 style="display: inline-block;">Available Tests for Course</h1>
+
+    <% if (typeof averageScore !== 'undefined') { %>
+        <div style="
+            float: right;
+            background: #e0f7fa;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            border: 1px solid #26c6da;
+        ">
+            Course Average: <%= averageScore %>%
+        </div>
+    <% } %>
+
+    <div style="clear: both;"></div>
 
     <% if (!tests || tests.length === 0) { %>
         <p>No available tests at this time.</p>
@@ -54,6 +69,5 @@
     <% } %>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
-
 </body>
 </html>

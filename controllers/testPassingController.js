@@ -19,7 +19,19 @@ module.exports = (router) => {
     router.get('/test/:testId', async (req, res) => {
         const user = authMiddleware(req);
         const testId = req.params.testId;
-    
+
+        if (
+        req.headers.accept === '*/*' &&
+        req.headers['sec-fetch-mode'] === 'cors' &&
+        req.headers['sec-fetch-dest'] === 'empty'
+        ) {
+        console.log('[DEBUG] Ignored background/fetch request');
+        res.writeHead(204); // No Content
+        res.end();
+        return;
+        }
+
+
         if (!user) {
             res.writeHead(302, { Location: '/login' });
             res.end();
@@ -50,51 +62,18 @@ module.exports = (router) => {
                 return;
             }
     
-            const attempts = await TestDAO.getAttemptsCount(testId, user.id);
+              const attempts = await TestDAO.getAttemptsCount(testId, user.id);
+                if (test.max_attempts && attempts >= test.max_attempts) {
+                    res.writeHead(403, { 'Content-Type': 'text/plain' });
+                    res.end('You have reached the maximum number of attempts for this test.');
+                    return;
+                }
 
-            if (test.max_attempts && attempts >= test.max_attempts) {
-            res.writeHead(403, { 'Content-Type': 'text/plain' });
-            res.end('You have reached the maximum number of attempts for this test.');
-            return;
-            }
-
-            const alreadyPassed = await db.query(`
-            SELECT is_checked FROM results
-            WHERE test_id = $1 AND student_id = $2
-            ORDER BY id DESC
-            LIMIT 1
-            `, [testId, user.id]);
-
-            if (alreadyPassed.rows.length > 0 && alreadyPassed.rows[0].is_checked) {
-            res.writeHead(302, { Location: '/dashboard' });
-            res.end();
-            return;
-            }
-
-            const recent = await db.query(`
-            SELECT id
-            FROM results
-            WHERE test_id = $1
-                AND student_id = $2
-                AND submitted_at >= now() - interval '2 seconds'
-            ORDER BY id DESC
-            LIMIT 1
-            `, [testId, user.id]);
-
-            let resultId;
-
-            if (recent.rows.length > 0) {
-            resultId = recent.rows[0].id;
-            console.log('[DEBUG] Using existing resultId =', resultId);
-            } else {
-            resultId = await TestDAO.saveResult(testId, user.id, 0, 0, 0, false);
-            console.log('[DEBUG] Created new resultId =', resultId);
-            }
+                const resultId = await TestDAO.saveResult(testId, user.id, 0, 0, 0, false);
+                console.log('[DEBUG] Created new resultId =', resultId);
 
 
 
-
-            
             // Next, we retrieve the questions and answers
             const rawQuestions = await TestDAO.getQuestionsAndAnswersByTest(testId);
     
@@ -120,6 +99,8 @@ module.exports = (router) => {
             
     
             const questions = Object.values(questionsMap);
+            console.log('[DEBUG] REQUEST HEADERS:', req.headers);
+
     
             // Retrieve all questions and answers
             renderView(res, 'tests/passTest.ejs', {
@@ -362,18 +343,23 @@ module.exports = (router) => {
     
         try {
             const tests = await TestDAO.getAllTestsForStudent(user.id);
-    
+
             for (let test of tests) {
                 const count = await TestDAO.getAttemptsCount(test.id, user.id);
                 test.attempts_made = count;
                 test.attempts_left = (test.max_attempts === null || test.max_attempts === 0)
-                    ? null : test.max_attempts - count;
+                    ? null
+                    : test.max_attempts - count;
+
                 test.last_score = await TestDAO.getLastResultPercent(test.id, user.id);
             }
-    
+
+            const averageScore = await TestDAO.getAverageScoreForStudentAllCourses(user.id);
+
             renderView(res, 'tests/allTests.ejs', {
                 tests,
-                backUrl: '/dashboard'  
+                averageScore,
+                backUrl: '/dashboard'
             });
         } catch (err) {
             console.error('Error loading all tests:', err);

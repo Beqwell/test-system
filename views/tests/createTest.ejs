@@ -12,7 +12,7 @@
         <input type="text" name="title" required><br><br>
 
         <label>Make Test Visible Immediately:</label><br>
-        <input type="checkbox" name="is_visible"><br><br>
+        <input type="checkbox" name="requested_visible" checked><br><br>
 
         <label>Start Date and Time (optional):</label><br>
         <input type="datetime-local" name="start_time"><br><br>
@@ -30,6 +30,5 @@
     </form>
 
     <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
-
 </body>
 </html>

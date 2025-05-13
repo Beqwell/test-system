@@ -1,17 +1,36 @@
 const db = require('../utils/db');
 
 class TestDAO {
-    static async createTest(courseId, title, isVisible, startTime, endTime, timeLimit, maxAttempts) {
+    static async createTest(courseId, title, isVisible, startTime, endTime, timeLimit, maxAttempts, requestedVisible) {
         const query = `
-            INSERT INTO tests (course_id, title, is_visible, start_time, end_time, time_limit_minutes, max_attempts)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO tests (
+                course_id,
+                title,
+                is_visible,
+                start_time,
+                end_time,
+                time_limit_minutes,
+                max_attempts,
+                requested_visible
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         `;
+
         const { rows } = await db.query(query, [
-            courseId, title, isVisible, startTime, endTime, timeLimit, maxAttempts
+            courseId,         
+            title,            
+            isVisible,        
+            startTime,        
+            endTime,          
+            timeLimit,        
+            maxAttempts,      
+            requestedVisible  
         ]);
+
         return rows[0];
     }
+
+
     
 
     static async getTestsByCourse(courseId) {
@@ -533,6 +552,41 @@ static async getLastResultPercent(testId, studentId) {
     `;
     await db.query(query, [resultId, correctCount, totalCount, scorePercent, isChecked]);
 }
+
+static async getCourseAverageScore(courseId, studentId) {
+    const query = `
+        SELECT 
+            t.id AS test_id,
+            COALESCE((
+                SELECT r.score_percent
+                FROM results r
+                WHERE r.test_id = t.id AND r.student_id = $2 AND r.is_checked = true
+                ORDER BY r.submitted_at DESC
+                LIMIT 1
+            ), 0) AS last_score
+        FROM tests t
+        WHERE t.course_id = $1 AND t.is_visible = true
+    `;
+    const { rows } = await db.query(query, [courseId, studentId]);
+    if (rows.length === 0) return 0;
+
+    const total = rows.length;
+    const sum = rows.reduce((acc, r) => acc + (r.last_score || 0), 0);
+
+    return Math.round(sum / total);
+}
+
+static async getAverageScoreForStudentAllCourses(studentId) {
+    const query = `
+        SELECT AVG(COALESCE(r.score_percent, 0)) AS avg_score
+        FROM results r
+        WHERE r.student_id = $1 AND r.is_checked = true
+    `;
+    const { rows } = await db.query(query, [studentId]);
+    return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
+}
+
+
 
 
     
