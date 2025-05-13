@@ -586,6 +586,49 @@ static async getAverageScoreForStudentAllCourses(studentId) {
     return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
 }
 
+static async getReminderTestsForStudent(studentId, max = 3) {
+    const now = new Date();
+
+    const { rows: upcoming } = await db.query(`
+        SELECT t.*, c.name AS course_name
+        FROM tests t
+        JOIN courses c ON c.id = t.course_id
+        JOIN students_courses sc ON sc.course_id = c.id
+        WHERE sc.student_id = $1
+          AND t.is_visible = true
+          AND (t.end_time IS NOT NULL AND t.end_time > NOW())
+          AND NOT EXISTS (
+              SELECT 1 FROM results r
+              WHERE r.test_id = t.id AND r.student_id = $1
+          )
+        ORDER BY t.end_time ASC
+        LIMIT $2
+    `, [studentId, max]);
+
+    if (upcoming.length >= max) return upcoming;
+
+    const excludeIds = upcoming.map(t => t.id);
+
+    const { rows: randomFill } = await db.query(`
+        SELECT t.*, c.name AS course_name
+        FROM tests t
+        JOIN courses c ON c.id = t.course_id
+        JOIN students_courses sc ON sc.course_id = c.id
+        WHERE sc.student_id = $1
+          AND t.is_visible = true
+          AND (t.end_time IS NULL OR t.end_time > NOW())
+          AND NOT EXISTS (
+              SELECT 1 FROM results r
+              WHERE r.test_id = t.id AND r.student_id = $1
+          )
+          ${excludeIds.length ? `AND t.id NOT IN (${excludeIds.join(',')})` : ''}
+        ORDER BY RANDOM()
+        LIMIT $2
+    `, [studentId, max - upcoming.length]);
+
+    return [...upcoming, ...randomFill];
+}
+
 
 
 
