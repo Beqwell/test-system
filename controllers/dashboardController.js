@@ -6,9 +6,10 @@ const cookie = require('cookie');
 const crypto = require('crypto');
 const { parse } = require('querystring');
 const TestDAO = require('../dao/TestDAO');
+const CourseDAO = require('../dao/CourseDAO');
+const MessageDAO = require('../dao/MessageDAO');
 const renderView = require('../utils/viewRenderer');
 const authMiddleware = require('../middlewares/authMiddleware');
-const CourseDAO = require('../dao/CourseDAO');
 
 module.exports = (router) => {
 
@@ -29,12 +30,15 @@ module.exports = (router) => {
             });
         } else if (user.role === 'student') {
             const courses = await CourseDAO.getCoursesByStudent(user.id);
-            const reminderTests = await TestDAO.getReminderTestsForStudent(user.id, 3); // ✅ нове
+            const reminderTests = await TestDAO.getReminderTestsForStudent(user.id, 3); 
+            const unreadMessages = await MessageDAO.getUnreadMessages(user.id); 
+            const allMessages = await MessageDAO.getAllMessages(user.id);
 
             renderView(res, 'courses/studentCourses.ejs', {
                 username: user.username,
                 courses,
-                reminderTests // ✅ передається в шаблон
+                reminderTests,
+                allMessages
             });
         } else {
             res.writeHead(403, { 'Content-Type': 'text/plain' });

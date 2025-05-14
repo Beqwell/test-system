@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Messages</title></head>
+<body>
+  <h1>📩 Messages for <%= username %></h1>
+
+  <% if (messages.length === 0) { %>
+    <p>No messages.</p>
+  <% } else { %>
+    <ul>
+      <% messages.forEach(m => { %>
+        <li style="margin-bottom: 15px;">
+          <strong><%= m.teacher_name %></strong> — <em><%= m.course_name %></em><br>
+          <%= m.content %><br>
+          <small><%= new Date(m.created_at).toLocaleString() %></small><br>
+          <% if (!m.is_read) { %>
+            <form method="POST" action="/messages/read/<%= m.id %>">
+              <button type="submit">Mark as read</button>
+            </form>
+          <% } else { %>
+            <span style="color: green;">✓ Read</span>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <br><a href="/dashboard">← Back</a>
+</body>
+</html>

@@ -33,8 +33,14 @@ module.exports = (router) => {
             const now = new Date();
     
             if (user.role === 'teacher') {
-                // Викладачу — показуємо всі тести без фільтра
-                renderView(res, 'tests/list.ejs', { courseId, tests: allTests, backUrl: '/dashboard' });
+                const uncheckedMap = await TestDAO.getUncheckedCountForTests(courseId);
+
+                renderView(res, 'tests/list.ejs', {
+                    courseId,
+                    tests: allTests,
+                    uncheckedMap, 
+                    backUrl: '/dashboard'
+                })
             } else if (user.role === 'student') {
                 // Студенту — тільки доступні тести
                 const availableTests = allTests.filter(test =>

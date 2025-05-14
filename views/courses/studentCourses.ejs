@@ -299,12 +299,13 @@
   <main class="main">
     <div class="header">
       <div class="welcome">Welcome, <%= username %> <small>(Student)</small></div>
+            <%- include('../partials/messageBell', { allMessages }) %>
       <form class="join-course-form" method="POST" action="/join-course">
         <input type="text" name="join_code" placeholder="Join code..." required />
         <button type="submit">Join</button>
-      </form>
+      </form>   
     </div>
-
+  
     <div class="section">
       <h2>My Courses</h2>
       <% if (courses.length === 0) { %>

@@ -1,5 +1,7 @@
 <% if (reminderTests && reminderTests.length > 0) { %>
 <div id="reminder-popup" style="
+  display: none; /* сховано спочатку */
+  /* display: block; */ /* для тестування */
   position: fixed;
   top: 50%;
   left: 50%;
@@ -16,7 +18,6 @@
   animation: fadeIn 0.4s ease-out;
   font-family: 'Poppins', sans-serif;
 ">
-
   <button onclick="document.getElementById('reminder-popup').remove()" style="
     position: absolute;
     top: 12px;
@@ -37,10 +38,7 @@
 
   <div style="display: flex; flex-direction: column; gap: 22px;">
     <% reminderTests.forEach(test => { %>
-      <div style="
-        padding-bottom: 18px;
-        border-bottom: 1px solid #ddd;
-      ">
+      <div style="padding-bottom: 18px; border-bottom: 1px solid #ddd;">
         <strong style="font-size: 1.05rem;"><%= test.title %></strong><br>
         📘 <%= test.course_name %><br>
         ⏱️ Time limit: <%= test.time_limit_minutes || '∞' %> min<br>
@@ -63,6 +61,21 @@
     <% }) %>
   </div>
 </div>
+
+<script>
+(function () {
+  const popup = document.getElementById('reminder-popup');
+  if (!popup) return;
+
+  const lastShown = localStorage.getItem('reminder_last_shown');
+  const now = Date.now();
+
+  if (!lastShown || now - parseInt(lastShown) > 30 * 60 * 1000) {
+    popup.style.display = 'block';
+    localStorage.setItem('reminder_last_shown', now.toString());
+  }
+})();
+</script>
 
 <style>
   @keyframes fadeIn {

@@ -33,6 +33,7 @@ require('./controllers/testController')(router);
 require('./controllers/testPassingController')(router);
 require('./controllers/resultController')(router);
 require('./controllers/questionController')(router);
+require('./controllers/messageController')(router);
 
 // Middleware to parse cookies
 const mimeTypes = {

@@ -629,17 +629,23 @@ static async getReminderTestsForStudent(studentId, max = 3) {
     return [...upcoming, ...randomFill];
 }
 
+    static async getUncheckedCountForTests(courseId) {
+    const query = `
+        SELECT t.id AS test_id, COUNT(r.id) AS unchecked_count
+        FROM tests t
+        LEFT JOIN results r ON r.test_id = t.id AND r.is_checked = false
+        WHERE t.course_id = $1
+        GROUP BY t.id
+    `;
+    const { rows } = await db.query(query, [courseId]);
+    const map = {};
+    for (const row of rows) {
+        map[row.test_id] = parseInt(row.unchecked_count);
+    }
+    return map;
+    }
 
-
-
-    
-
-  
-    
-    
-    
-       
-    
+ 
     
 }
 

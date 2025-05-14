@@ -1,73 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Pass Test</title>
-    <script defer src="/js/timer.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pass Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script defer src="/js/timer.js"></script>
+  <style>
+    :root {
+      --lavender-bg: #f3ecff;
+      --violet: #7c3aed;
+      --violet-dark: #5b21b6;
+      --violet-soft: #ede9fe;
+      --violet-border: #d6bbfb;
+      --white: #ffffff;
+      --text-dark: #2e1065;
+      --text-muted: #6b7280;
+      --radius: 14px;
+      --shadow: 0 12px 28px rgba(124, 58, 237, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--lavender-bg);
+      color: var(--text-dark);
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      color: var(--violet-dark);
+      text-align: center;
+    }
+
+    #timer-box {
+      display: none;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      padding: 10px 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .question-wrapper {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .question-meta {
+      width: 130px;
+      background: var(--violet-soft);
+      border: 1px solid var(--violet-border);
+      border-radius: var(--radius);
+      padding: 0.8rem;
+      font-size: 0.85rem;
+      color: var(--violet-dark);
+      font-weight: 500;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .question-card {
+      flex: 1;
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--violet-border);
+      box-shadow: var(--shadow);
+      padding: 1.5rem 2rem;
+    }
+
+    .question-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+    }
+
+    .attachment {
+      margin-bottom: 1.2rem;
+    }
+
+    .attachment img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    .pdf-link {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      color: var(--violet-dark);
+      border: 1px solid var(--violet-border);
+      border-radius: 8px;
+      background: var(--violet-soft);
+      text-decoration: none;
+    }
+
+    .answer-options label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .answer-options label::before {
+      content: attr(data-letter) ".";
+      position: absolute;
+      left: 0;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .text-input,
+    .number-input {
+      width: 95%;
+      min-height: 3rem;
+      font-size: 1rem;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--violet-border);
+      border-radius: var(--radius);
+      resize: vertical;
+    }
+
+    .text-input:focus,
+    .number-input:focus {
+      outline: none;
+      border-color: var(--violet-dark);
+    }
+
+    button[type="submit"] {
+      display: block;
+      margin: 3rem auto 0;
+      background-color: var(--violet);
+      color: white;
+      padding: 1rem 2.8rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.15);
+      transition: 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: var(--violet-dark);
+      transform: translateY(-1px);
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 2.5rem;
+      color: var(--violet-dark);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .question-wrapper {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+
+      .question-meta {
+        width: 100%;
+        text-align: left;
+      }
+
+      .question-card {
+        padding: 1.2rem;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body data-timer="<%= test.time_limit_minutes || 0 %>">
-    <h1>Test: <%= test.title %></h1>
 
-    <div id="timer-box" style="
-        display: none;
-        position: fixed;
-        top: 10px;
-        right: 15px;
-        background: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeeba;
-        padding: 10px 15px;
-        font-weight: bold;
-        border-radius: 6px;
-        z-index: 9999;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    ">
-        ⏳ Time Left: <span id="timer"></span>
-    </div>
+  <h1>📝 <%= test.title %></h1>
+  <div id="timer-box">⏳ Time Left: <span id="timer"></span></div>
 
+  <form method="POST" action="/submit-test/<%= test.id %>" id="test-form">
+    <input type="hidden" name="result_id" value="<%= resultId %>">
 
-    <form method="POST" action="/submit-test/<%= test.id %>" id="test-form">
+    <% questions.forEach((q, index) => { %>
+      <div class="question-wrapper">
+        <div class="question-meta">
+          Task <%= index + 1 %><br>
+          <% if (q.type === 'one') { %>Type: Single Choice
+          <% } else if (q.type === 'multi') { %>Type: Multiple Choice
+          <% } else if (q.type === 'text') { %>Type: Text
+          <% } else if (q.type === 'number') { %>Type: Number
+          <% } %>
+        </div>
 
-        <input type="hidden" name="result_id" value="<%= resultId %>">
-        <% questions.forEach((q, index) => { %>
-            <div style="margin-bottom: 20px;">
-                <strong><%= index + 1 %>. <%= q.text %></strong><br>
+        <div class="question-card">
+          <div class="question-title"><%= q.text %></div>
 
-                <%- renderAttachmentHTML(q.attachment_path) %>
-
-                <% if (q.type === 'one') { %>
-                    <% q.answers.forEach(a => { %>
-                        <label>
-                            <input type="radio" name="answer_<%= q.id %>" value="<%= a.id %>">
-                            <%= a.text %>
-                        </label><br>
-                    <% }) %>
-                <% } else if (q.type === 'multi') { %>
-                    <% q.answers.forEach(a => { %>
-                        <label>
-                            <input type="checkbox" name="answer_<%= q.id %>" value="<%= a.id %>">
-                            <%= a.text %>
-                        </label><br>
-                    <% }) %>
-                <% } else if (q.type === 'text') { %>
-                    <input type="text" name="answer_<%= q.id %>"><br>
-                <% } else if (q.type === 'number') { %>
-                    <input type="number" step="any" name="answer_<%= q.id %>"><br>
-                <% } %>
+          <% if (q.attachment_path) { %>
+            <div class="attachment">
+              <%- renderAttachmentHTML(q.attachment_path) %>
             </div>
-        <% }) %>
+          <% } %>
 
-        <button type="submit">Submit Test</button>
-    </form>
+          <div class="answer-options">
+            <% if (q.type === 'one') { %>
+              <% q.answers.forEach((a, i) => { %>
+                <label data-letter="<%= String.fromCharCode(97 + i) %>">
+                  <input type="radio" name="answer_<%= q.id %>" value="<%= a.id %>">
+                  <%= a.text %>
+                </label>
+              <% }) %>
+            <% } else if (q.type === 'multi') { %>
+              <% q.answers.forEach((a, i) => { %>
+                <label data-letter="<%= String.fromCharCode(97 + i) %>">
+                  <input type="checkbox" name="answer_<%= q.id %>" value="<%= a.id %>">
+                  <%= a.text %>
+                </label>
+              <% }) %>
+            <% } else if (q.type === 'text') { %>
+              <textarea class="text-input" name="answer_<%= q.id %>" rows="3" placeholder="Enter your answer..."></textarea>
+            <% } else if (q.type === 'number') { %>
+              <input class="number-input" type="number" step="any" name="answer_<%= q.id %>" placeholder="Enter a number...">
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% }) %>
 
-    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+    <button type="submit">✅ Submit Test</button>
+  </form>
 
-<script>
-  console.log('[DEBUG] test page loaded');
-  setInterval(() => {
-    console.log('[DEBUG] still alive at', new Date().toISOString());
-  }, 3000);
-</script>
-
+  <a class="back-link" href="<%= backUrl || '/student/dashboard' %>">← Back</a>
 </body>
 </html>

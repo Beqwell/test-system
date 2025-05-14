@@ -3,26 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <title>Students in Course</title>
+  <style>
+    .msg-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      background: #fff;
+      padding: 20px;
+      border: 2px solid #7c3aed;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      display: none;
+    }
+
+    .msg-popup textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+    }
+
+    .msg-popup-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .msg-popup-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <h1>Students in This Course</h1>
 
+  <a href="/course/<%= courseId %>/messages" style="
+    display: inline-block;
+    margin-bottom: 15px;
+    background: #7c3aed;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+  ">📨 View Sent Messages</a>
+
+
+  <!-- Кнопка для всього курсу -->
+  <button class="open-message-btn" data-student-id="" data-student-name="Entire Course">
+    📢 Send to Entire Course
+  </button>
+
   <% if (students.length === 0) { %>
     <p>No students have joined this course yet.</p>
   <% } else { %>
-      <ul>
-        <% students.forEach(student => { %>
-          <li>
-            <strong><%= student.username %></strong>
-            (<span style="color:blue;">Avg Score: <%= student.average_score %>%</span>) &nbsp;
-            <form method="POST" action="/course/<%= courseId %>/remove-student/<%= student.id %>" style="display:inline;">
-              <button type="submit" onclick="return confirm('Remove student <%= student.username %>?')">❌ Remove</button>
-            </form>
-          </li>
-        <% }) %>
-      </ul>
+    <ul>
+      <% students.forEach(student => { %>
+        <li>
+          <strong><%= student.username %></strong>
+          (<span style="color:blue;">Avg Score: <%= student.average_score %>%</span>) &nbsp;
+
+          <form method="POST" action="/course/<%= courseId %>/remove-student/<%= student.id %>" style="display:inline;">
+            <button type="submit" onclick="return confirm('Remove student <%= student.username %>?')">❌ Remove</button>
+          </form>
+
+          &nbsp;
+
+          <!-- Кнопка для конкретного студента -->
+          <button
+            class="open-message-btn"
+            data-student-id="<%= student.id %>"
+            data-student-name="<%= student.username.replace(/"/g, '&quot;') %>">
+            ✉️ Send Message
+          </button>
+        </li>
+      <% }) %>
+    </ul>
   <% } %>
 
   <br><a href="/dashboard">Back to Dashboard</a>
+
+  <!-- Спливаюче вікно -->
+  <div id="messagePopup" class="msg-popup">
+    <button class="msg-popup-close" onclick="closeMsgPopup()">&times;</button>
+    <div class="msg-popup-header" id="msgTitle">Send message</div>
+    <form method="POST" action="/send-message">
+      <input type="hidden" name="course_id" value="<%= courseId %>">
+      <input type="hidden" name="student_id" id="msgStudentId">
+      <textarea name="content" placeholder="Write your message..." required></textarea>
+      <br><br>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    const popup = document.getElementById('messagePopup');
+    const title = document.getElementById('msgTitle');
+    const studentIdInput = document.getElementById('msgStudentId');
+
+    function closeMsgPopup() {
+      popup.style.display = 'none';
+    }
+
+    document.querySelectorAll('.open-message-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const studentId = btn.dataset.studentId;
+        const studentName = btn.dataset.studentName;
+        studentIdInput.value = studentId;
+        title.textContent = `Send message to ${studentName}`;
+        popup.style.display = 'block';
+      });
+    });
+  </script>
 </body>
 </html>

@@ -85,6 +85,12 @@ class CourseDAO {
         return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
     }
 
+    static async getCourseById(courseId) {
+    const { rows } = await db.query('SELECT * FROM courses WHERE id = $1', [courseId]);
+    return rows[0];
+    }
+    
+
 
     
 }
