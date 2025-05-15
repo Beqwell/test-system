@@ -28,63 +28,19 @@ class TestDAO {
         ]);
 
         return rows[0];
-    }
-
-
-    
+    } // Create a new test
 
     static async getTestsByCourse(courseId) {
         const query = 'SELECT * FROM tests WHERE course_id = $1';
         const { rows } = await db.query(query, [courseId]);
         return rows;
-    }
-
-    static async createAnswer(questionId, answerText, isCorrect) {
-        const query = 'INSERT INTO answers (question_id, answer_text, is_correct) VALUES ($1, $2, $3)';
-        try {
-            await db.query(query, [questionId, answerText, isCorrect]);
-        } catch (err) {
-            console.error(' ERROR inserting answer:', err);
-        }
-            }
-
-    static async getQuestionsAndAnswersByTest(testId) {
-    const query = `
-        SELECT 
-            q.id as question_id, 
-            q.question_text, 
-            q.question_type,
-            q.attachment_path,
-            a.id as answer_id, 
-            a.answer_text, 
-            a.is_correct
-        FROM questions q
-        LEFT JOIN answers a ON q.id = a.question_id
-        WHERE q.test_id = $1
-    `;
-    const { rows } = await db.query(query, [testId]);
-    return rows;
-}
-
+    } // Get all tests for a course
     
 
     static async deleteTest(testId) {
         const query = 'DELETE FROM tests WHERE id = $1';
         await db.query(query, [testId]);
-    }
-
-    static async createQuestion(testId, questionText, questionType, attachmentPath = null) {
-        const query = `
-            INSERT INTO questions (test_id, question_text, question_type, attachment_path)
-            VALUES ($1, $2, $3, $4)
-            RETURNING *
-        `;
-        const { rows } = await db.query(query, [
-            testId, questionText, questionType, attachmentPath
-        ]);
-        return rows[0];
-    }
-
+    } // Delete a test by ID
     
     static async getTestById(testId) {
         const query = `
@@ -94,9 +50,7 @@ class TestDAO {
         `;
         const { rows } = await db.query(query, [testId]);
         return rows[0];
-    }
-    
-    
+    } // Get a test by ID
     
     static async updateTest(testId, title, isVisible, showResult, startTime, endTime, timeLimit, maxAttempts) {
         const query = `
@@ -111,9 +65,7 @@ class TestDAO {
             WHERE id = $8
         `;
         await db.query(query, [title, isVisible, showResult, startTime, endTime, timeLimit, maxAttempts, testId]);
-    }
-    
-    
+    }// Update a test by ID
     
     static async forceVisibleTest(testId) {
         const query = `
@@ -122,7 +74,7 @@ class TestDAO {
             WHERE id = $1
         `;
         await db.query(query, [testId]);
-    }
+    } // Force a test to be visible
     
     static async getVisibleTestsForStudent(courseId) {
         const now = new Date();
@@ -135,40 +87,7 @@ class TestDAO {
         `;
         const { rows } = await db.query(query, [courseId, now]);
         return rows;
-    }
-    
-    static async saveResult(testId, studentId, correct, total, percent, isChecked) {
-        const query = `
-            INSERT INTO results (
-                test_id, student_id, correct_count, total_count, score_percent, is_checked, submitted_at
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, now())
-            RETURNING id
-        `;
-        const { rows } = await db.query(query, [
-            testId, studentId, correct, total, percent, isChecked
-        ]);
-        return rows[0].id;
-    }
-
-    
-    
-static async saveSubmittedAnswer(resultId, questionId, answerText, answerId = null, skipDelete = false) {
-    if (!skipDelete) {
-        await db.query(`
-            DELETE FROM answers_submitted
-            WHERE result_id = $1 AND question_id = $2
-        `, [resultId, questionId]);
-    }
-
-    const query = `
-        INSERT INTO answers_submitted (result_id, question_id, answer_text, answer_id)
-        VALUES ($1, $2, $3, $4)
-    `;
-    await db.query(query, [resultId, questionId, answerText, answerId]);
-}
-
-    
+    }// Get all visible tests for a student in a course
     
     static async getAttemptsCount(testId, studentId) {
         const result = await db.query(
@@ -179,15 +98,15 @@ static async saveSubmittedAnswer(resultId, questionId, answerText, answerId = nu
         return parseInt(result.rows[0].count, 10);
     }
 
-static async getLastResultPercent(testId, studentId) {
-    const result = await db.query(
-        `SELECT score_percent FROM results 
-         WHERE test_id = $1 AND student_id = $2 AND is_checked = true
-         ORDER BY submitted_at DESC LIMIT 1`,
-        [testId, studentId]
-    );
-    return result.rows[0]?.score_percent ?? null;
-}
+    static async getLastResultPercent(testId, studentId) {
+        const result = await db.query(
+            `SELECT score_percent FROM results 
+            WHERE test_id = $1 AND student_id = $2 AND is_checked = true
+            ORDER BY submitted_at DESC LIMIT 1`,
+            [testId, studentId]
+        );
+        return result.rows[0]?.score_percent ?? null;
+    }
     static async markAnswerChecked(answerId, isCorrect) {
         const query = `
             UPDATE answers_submitted
@@ -198,100 +117,6 @@ static async getLastResultPercent(testId, studentId) {
         await db.query(query, [isCorrect, answerId]);
     }
     
-    static async getFullResultWithAnswers(resultId) {
-        const query = `
-            SELECT 
-                q.id AS question_id,
-                q.question_text,
-                q.question_type,
-                a.id AS answer_id,
-                a.answer_text,
-                sa.answer_text AS submitted_text,
-                sa.answer_id AS submitted_answer_id,
-                sa.is_correct_checked
-            FROM questions q
-            LEFT JOIN answers a ON a.question_id = q.id
-            LEFT JOIN answers_submitted sa ON sa.question_id = q.id AND sa.result_id = $1
-            WHERE q.test_id = (
-                SELECT test_id FROM results WHERE id = $1
-                )
-
-            ORDER BY q.id, a.id
-        `;
-        console.log('[DAO] Fetched raw rows:', rows);
-
-        const { rows } = await db.query(query, [resultId]);
-        return rows;
-    }
-    
-    
-    static async recalculateResult(resultId) {
-        // Получаем все проверенные ответы (только accuracy_percent)
-        const query = `
-            SELECT question_id, accuracy_percent
-            FROM answers_submitted
-            WHERE result_id = $1 AND is_correct_checked = true
-        `;
-        const { rows } = await db.query(query, [resultId]);
-
-        // Группируем по question_id → берём только по одной записи на вопрос
-        const seenQuestions = new Set();
-        let total = 0;
-        let correctPoints = 0;
-
-        for (const row of rows) {
-            const qid = row.question_id;
-            if (seenQuestions.has(qid)) continue;
-            seenQuestions.add(qid);
-            total++;
-
-            // Нормируем процент в диапазон [0,100] и добавляем дробную часть
-            const pct = Math.max(0, Math.min(row.accuracy_percent ?? 0, 100));
-            correctPoints += pct / 100;
-        }
-
-        // Вычисляем итоговый процент
-        const percent = total > 0
-            ? Math.round((correctPoints / total) * 100)
-            : 0;
-
-        // Обновляем результирующую запись
-        const update = `
-            UPDATE results
-            SET correct_count = $1,
-                total_count   = $2,
-                score_percent = $3
-            WHERE id = $4
-        `;
-        await db.query(update, [correctPoints, total, percent, resultId]);
-    }
-
-    
-    
-    static async updateCheckStatus(resultId) {
-        const query = `
-            SELECT COUNT(*) FILTER (WHERE is_correct_checked IS DISTINCT FROM true) AS unchecked
-            FROM answers_submitted
-            WHERE result_id = $1
-        `;
-        const { rows } = await db.query(query, [resultId]);
-        const isChecked = parseInt(rows[0].unchecked) === 0;
-    
-        await db.query(
-            `UPDATE results SET is_checked = $1 WHERE id = $2`,
-            [isChecked, resultId]
-        );
-    }
-
-    static async markResultChecked(resultId) {
-        const query = `
-            UPDATE results
-            SET is_checked = true
-            WHERE id = $1
-        `;
-        await db.query(query, [resultId]);
-    }
-
     static async getAllTestsForStudent(studentId) {
         const query = `
             SELECT t.*, c.name AS course_name
@@ -303,7 +128,7 @@ static async getLastResultPercent(testId, studentId) {
         `;
         const { rows } = await db.query(query, [studentId]);
         return rows;
-    }
+    }// Get all tests for a student
     
 
     static async getDetailedResultFull(resultId) {
@@ -399,235 +224,81 @@ static async getLastResultPercent(testId, studentId) {
     return Object.values(questionsMap);
     }
 
-
-    static async markAnswerManually(answerId, accuracyPercent) {
-    const pct = Math.max(0, Math.min(parseInt(accuracyPercent, 10), 100));
-
-    console.log('[DAO] markAnswerManually:', { answerId, accuracyPercent });
-
-    const query = `
-        UPDATE answers_submitted
-        SET 
-        is_correct_checked = true,
-        accuracy_percent   = $2::int
-        WHERE
-        answer_id = $1::int   -- для вопросов типа one/multi
-        OR id     = $1::int   -- для текстовых и числовых
-    `;
-    await db.query(query, [answerId, pct]);
-    }
-
-
-    static async evaluateAutoCheckForMulti(resultId, questionId) {
-        // 1) Получаем все правильные варианты текста ответа
-        const correctQuery = `
-            SELECT answer_text
-            FROM answers
-            WHERE question_id = $1 AND is_correct = true
-        `;
-        const { rows: correctRows } = await db.query(correctQuery, [questionId]);
-        const correctAnswers = correctRows.map(r => r.answer_text.trim());
-
-        // 2) Получаем все ответы студента на этот вопрос
-        const studentQuery = `
-            SELECT id, answer_text
-            FROM answers_submitted
-            WHERE result_id = $1 AND question_id = $2
-        `;
-        const { rows: studentRows } = await db.query(studentQuery, [resultId, questionId]);
-        const studentAnswers = studentRows.map(r => r.answer_text.trim());
-
-        // 3) Считаем, выбрал ли студент все правильные и не выбрал лишнего
-        const correctSet = new Set(correctAnswers);
-        const studentSet = new Set(studentAnswers);
-        const allCorrectSelected = correctAnswers.every(a => studentSet.has(a));
-        const anyExtraSelected = [...studentSet].some(a => !correctSet.has(a));
-        const isCorrect = allCorrectSelected && !anyExtraSelected;
-
-        // 4) Проставляем checked и accuracy_percent для каждой записи
-        const percent = isCorrect ? 100 : 0;
-        for (const row of studentRows) {
-            await db.query(`
-                UPDATE answers_submitted
-                SET is_correct_checked = true,
-                    accuracy_percent     = $1::int
-                WHERE id = $2::int
-            `, [percent, row.id]);
-        }
-    }
-
-        
-    static async getLastResultMeta(testId, studentId) {
+    static async getCourseAverageScore(courseId, studentId) {
         const query = `
-            SELECT score_percent, is_checked
-            FROM results
-            WHERE test_id = $1 AND student_id = $2
-            ORDER BY submitted_at DESC
-            LIMIT 1
-        `;
-        const { rows } = await db.query(query, [testId, studentId]);
-        return rows[0] || { score_percent: null, is_checked: false };
-    }
-
-    static async evaluateAutoCheckForOne(resultId) {
-        // 1) Получаем все сабмитнутые ответы типа “one” и флаг is_correct
-        const { rows } = await db.query(
-            `
             SELECT 
-                sa.id           AS submitted_id,
-                a.is_correct    AS is_correct
-            FROM answers_submitted sa
-            JOIN questions q   ON q.id = sa.question_id
-            JOIN answers a     ON a.id = sa.answer_id
-            WHERE sa.result_id   = $1::int
-            AND q.question_type = 'one'
-            `,
-            [resultId]
-        );
+                t.id AS test_id,
+                COALESCE((
+                    SELECT r.score_percent
+                    FROM results r
+                    WHERE r.test_id = t.id AND r.student_id = $2 AND r.is_checked = true
+                    ORDER BY r.submitted_at DESC
+                    LIMIT 1
+                ), 0) AS last_score
+            FROM tests t
+            WHERE t.course_id = $1 AND t.is_visible = true
+        `;
+        const { rows } = await db.query(query, [courseId, studentId]);
+        if (rows.length === 0) return 0;
 
-        // 2) Для каждой записи вычисляем процент и обновляем двумя параметрами
-        for (const { submitted_id, is_correct } of rows) {
-            const percent = is_correct ? 100 : 0;
-            await db.query(
-                `
-                UPDATE answers_submitted
-                SET 
-                    is_correct_checked = true,
-                    accuracy_percent   = $1::int
-                WHERE id = $2::int
-                `,
-                [percent, submitted_id]
-            );
-        }
-    }
+        const total = rows.length;
+        const sum = rows.reduce((acc, r) => acc + (r.last_score || 0), 0);
 
-    static async markAnswerByQuestion(resultId, questionId, accuracyPercent) {
-    const pct = Math.max(0, Math.min(parseInt(accuracyPercent, 10), 100));
+        return Math.round(sum / total);
+    }// Get the average score for a course
 
-    // Обновляем сразу все строки за эту пару (result_id, question_id)
-    await db.query(`
-        UPDATE answers_submitted
-        SET 
-        is_correct_checked = true,
-        accuracy_percent   = $3::int
-        WHERE
-        result_id   = $1::int
-        AND question_id = $2::int
-    `, [resultId, questionId, pct]);
-    }
+    static async getAverageScoreForStudentAllCourses(studentId) {
+        const query = `
+            SELECT AVG(COALESCE(r.score_percent, 0)) AS avg_score
+            FROM results r
+            WHERE r.student_id = $1 AND r.is_checked = true
+        `;
+        const { rows } = await db.query(query, [studentId]);
+        return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
+    } // Get the average score for a student across all courses
 
-    static async calculateResultPreview(resultId) {
-    // Собираем все проверенные ответы
-    const { rows } = await db.query(`
-        SELECT question_id, accuracy_percent
-        FROM answers_submitted
-        WHERE result_id = $1 AND is_correct_checked = true
-    `, [resultId]);
+    static async getReminderTestsForStudent(studentId, max = 3) {
+        const now = new Date();
 
-    const seen = new Set();
-    let total = 0, correctPoints = 0;
-    for (const { question_id, accuracy_percent } of rows) {
-        if (seen.has(question_id)) continue;
-        seen.add(question_id);
-        total++;
-        const pct = Math.max(0, Math.min(accuracy_percent || 0, 100));
-        correctPoints += pct / 100;
-    }
+        const { rows: upcoming } = await db.query(`
+            SELECT t.*, c.name AS course_name
+            FROM tests t
+            JOIN courses c ON c.id = t.course_id
+            JOIN students_courses sc ON sc.course_id = c.id
+            WHERE sc.student_id = $1
+            AND t.is_visible = true
+            AND (t.end_time IS NOT NULL AND t.end_time > NOW())
+            AND NOT EXISTS (
+                SELECT 1 FROM results r
+                WHERE r.test_id = t.id AND r.student_id = $1
+            )
+            ORDER BY t.end_time ASC
+            LIMIT $2
+        `, [studentId, max]);
 
-    const percent = total > 0
-        ? Math.round((correctPoints / total) * 100)
-        : 0;
+        if (upcoming.length >= max) return upcoming;
 
-    return { total, correctPoints, percent };
-    }
+        const excludeIds = upcoming.map(t => t.id);
 
-    static async updateResultSummary(resultId, correctCount, totalCount, scorePercent, isChecked) {
-    const query = `
-        UPDATE results
-        SET correct_count = $2,
-            total_count   = $3,
-            score_percent = $4,
-            is_checked    = $5
-        WHERE id = $1
-    `;
-    await db.query(query, [resultId, correctCount, totalCount, scorePercent, isChecked]);
-}
+        const { rows: randomFill } = await db.query(`
+            SELECT t.*, c.name AS course_name
+            FROM tests t
+            JOIN courses c ON c.id = t.course_id
+            JOIN students_courses sc ON sc.course_id = c.id
+            WHERE sc.student_id = $1
+            AND t.is_visible = true
+            AND (t.end_time IS NULL OR t.end_time > NOW())
+            AND NOT EXISTS (
+                SELECT 1 FROM results r
+                WHERE r.test_id = t.id AND r.student_id = $1
+            )
+            ${excludeIds.length ? `AND t.id NOT IN (${excludeIds.join(',')})` : ''}
+            ORDER BY RANDOM()
+            LIMIT $2
+        `, [studentId, max - upcoming.length]);
 
-static async getCourseAverageScore(courseId, studentId) {
-    const query = `
-        SELECT 
-            t.id AS test_id,
-            COALESCE((
-                SELECT r.score_percent
-                FROM results r
-                WHERE r.test_id = t.id AND r.student_id = $2 AND r.is_checked = true
-                ORDER BY r.submitted_at DESC
-                LIMIT 1
-            ), 0) AS last_score
-        FROM tests t
-        WHERE t.course_id = $1 AND t.is_visible = true
-    `;
-    const { rows } = await db.query(query, [courseId, studentId]);
-    if (rows.length === 0) return 0;
-
-    const total = rows.length;
-    const sum = rows.reduce((acc, r) => acc + (r.last_score || 0), 0);
-
-    return Math.round(sum / total);
-}
-
-static async getAverageScoreForStudentAllCourses(studentId) {
-    const query = `
-        SELECT AVG(COALESCE(r.score_percent, 0)) AS avg_score
-        FROM results r
-        WHERE r.student_id = $1 AND r.is_checked = true
-    `;
-    const { rows } = await db.query(query, [studentId]);
-    return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
-}
-
-static async getReminderTestsForStudent(studentId, max = 3) {
-    const now = new Date();
-
-    const { rows: upcoming } = await db.query(`
-        SELECT t.*, c.name AS course_name
-        FROM tests t
-        JOIN courses c ON c.id = t.course_id
-        JOIN students_courses sc ON sc.course_id = c.id
-        WHERE sc.student_id = $1
-          AND t.is_visible = true
-          AND (t.end_time IS NOT NULL AND t.end_time > NOW())
-          AND NOT EXISTS (
-              SELECT 1 FROM results r
-              WHERE r.test_id = t.id AND r.student_id = $1
-          )
-        ORDER BY t.end_time ASC
-        LIMIT $2
-    `, [studentId, max]);
-
-    if (upcoming.length >= max) return upcoming;
-
-    const excludeIds = upcoming.map(t => t.id);
-
-    const { rows: randomFill } = await db.query(`
-        SELECT t.*, c.name AS course_name
-        FROM tests t
-        JOIN courses c ON c.id = t.course_id
-        JOIN students_courses sc ON sc.course_id = c.id
-        WHERE sc.student_id = $1
-          AND t.is_visible = true
-          AND (t.end_time IS NULL OR t.end_time > NOW())
-          AND NOT EXISTS (
-              SELECT 1 FROM results r
-              WHERE r.test_id = t.id AND r.student_id = $1
-          )
-          ${excludeIds.length ? `AND t.id NOT IN (${excludeIds.join(',')})` : ''}
-        ORDER BY RANDOM()
-        LIMIT $2
-    `, [studentId, max - upcoming.length]);
-
-    return [...upcoming, ...randomFill];
-}
+        return [...upcoming, ...randomFill];
+    } // Get tests for a student that are not yet completed
 
     static async getUncheckedCountForTests(courseId) {
     const query = `
@@ -643,7 +314,7 @@ static async getReminderTestsForStudent(studentId, max = 3) {
         map[row.test_id] = parseInt(row.unchecked_count);
     }
     return map;
-    }
+    } // Get the count of unchecked tests for a course
 
  
     

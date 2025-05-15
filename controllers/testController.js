@@ -8,6 +8,7 @@ const { parse } = require('querystring');
 const renderView = require('../utils/viewRenderer');
 const authMiddleware = require('../middlewares/authMiddleware');
 const TestDAO = require('../dao/TestDAO');
+const ResultDao = require('../dao/ResultDAO');
 const db = require('../utils/db');
 
 module.exports = (router) => {
@@ -55,7 +56,7 @@ module.exports = (router) => {
                     test.attempts_left = (test.max_attempts === null || test.max_attempts === 0)
                         ? null
                         : test.max_attempts - count; // Останній % результату (null якщо ще не оцінено)
-                    const resultMeta = await TestDAO.getLastResultMeta(test.id, user.id);
+                    const resultMeta = await ResultDao.getLastResultMeta(test.id, user.id);
                     test.last_score = resultMeta.score_percent;
                     test.is_checked = resultMeta.is_checked;
                 }

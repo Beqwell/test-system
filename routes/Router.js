@@ -1,3 +1,5 @@
+const url = require('url');
+
 class Router {
     constructor() {
         this.routes = {
@@ -7,10 +9,12 @@ class Router {
     }
 
     get(path, handler) {
+        console.log(`[ROUTER] Registered GET ${path}`);
         this.routes.GET.push({ path, handler });
     }
 
     post(path, handler) {
+        console.log(`[ROUTER] Registered POST ${path}`);
         this.routes.POST.push({ path, handler });
     }
 
@@ -35,9 +39,12 @@ class Router {
             }
 
             if (matched) {
+                console.log(`[ROUTER] Matched route: ${method} ${pathname} → ${route.path}`);
                 return { handler: route.handler, params };
             }
         }
+
+        console.warn(`[ROUTER] No match for ${method} ${pathname}`);
         return null;
     }
 
@@ -49,7 +56,13 @@ class Router {
 
         if (result) {
             req.params = result.params || {};
-            result.handler(req, res);
+            try {
+                result.handler(req, res);
+            } catch (err) {
+                console.error(`[ROUTER] Error in handler for ${method} ${pathname}:`, err);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('500 Internal Server Error');
+            }
         } else {
             res.writeHead(404, { 'Content-Type': 'text/plain' });
             res.end('404 Not Found (Routing)');

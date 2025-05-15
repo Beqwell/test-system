@@ -16,26 +16,28 @@ const PORT = 3000;
 
 // Basic testing system setup
 router.get('/', (req, res) => {
+    console.log('[ROUTER] GET /');
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end('<h1>Welcome to the Testing System!</h1>');
 });
 
 router.get('/about', (req, res) => {
+    console.log('[ROUTER] GET /about');
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end('<h1>About Page</h1>');
 });
 
-//  Controller imports
+// Controller imports
 require('./controllers/authController')(router);
 require('./controllers/courseController')(router);
-require('./controllers/dashboardController')(router); 
+require('./controllers/dashboardController')(router);
 require('./controllers/testController')(router);
 require('./controllers/testPassingController')(router);
 require('./controllers/resultController')(router);
 require('./controllers/questionController')(router);
 require('./controllers/messageController')(router);
 
-// Middleware to parse cookies
+// MIME types for static files
 const mimeTypes = {
     '.js': 'application/javascript',
     '.css': 'text/css',
@@ -47,7 +49,7 @@ const mimeTypes = {
     '.ico': 'image/x-icon'
 };
 
-// Middleware to serve static files
+// Serve static files
 const serveStatic = (req, res) => {
     const parsedUrl = url.parse(req.url);
     const safePath = path.normalize(parsedUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
@@ -56,6 +58,7 @@ const serveStatic = (req, res) => {
 
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
         const mime = mimeTypes[ext] || 'application/octet-stream';
+        console.log(`[STATIC] ${req.method} ${req.url} → ${filePath}`);
         res.writeHead(200, { 'Content-Type': mime });
         fs.createReadStream(filePath).pipe(res);
         return true;
@@ -64,8 +67,10 @@ const serveStatic = (req, res) => {
     return false;
 };
 
-// Start the server
+// Start HTTP server
 const server = http.createServer((req, res) => {
+    console.log(`[REQUEST] ${req.method} ${req.url}`);
+
     if (!serveStatic(req, res)) {
         router.handle(req, res);
     }

@@ -10,6 +10,8 @@ const db = require('../utils/db');
 const TestDAO = require('../dao/TestDAO');
 const CourseDAO = require('../dao/CourseDAO');
 const QuestionDAO = require('../dao/QuestionDAO');
+const SubmittedAnswerDAO = require('../dao/SubmittedAnswerDAO');
+const ResultDao = require('../dao/ResultDAO');
 const renderView = require('../utils/viewRenderer');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -78,7 +80,7 @@ module.exports = (router) => {
 
         // 2) Получаем уже готовый массив вопросов с вариантами
         const questions = await TestDAO.getDetailedResultFull(resultId);
-        const { percent: previewPercent } = await TestDAO.calculateResultPreview(resultId);
+        const { percent: previewPercent } = await ResultDao.calculateResultPreview(resultId);
 
         console.log('[Controller] Questions passed to view:', questions);
 
@@ -138,7 +140,7 @@ module.exports = (router) => {
 
         try {
           // 4) Вызываем новый DAO-метод, который обновляет по (result_id, question_id)
-          await TestDAO.markAnswerByQuestion(resultId, questionId, accuracy);
+          await SubmittedAnswerDAO.markAnswerByQuestion(resultId, questionId, accuracy);
 
           // 5) Редирект обратно на страницу детали результата
           res.writeHead(302, { Location: req.headers.referer || '/dashboard' });
@@ -165,10 +167,10 @@ module.exports = (router) => {
     
         try {
             // Позначаємо результат як перевірений
-            await TestDAO.markResultChecked(resultId);
+            await ResultDao.markResultChecked(resultId);
     
             // Перераховуємо оцінку після перевірки
-            await TestDAO.recalculateResult(resultId);
+            await SubmittedAnswerDAO.recalculateResult(resultId);
     
             // Повертаємо на сторінку результатів
             res.writeHead(302, { Location: `/test/${testId}/results` });

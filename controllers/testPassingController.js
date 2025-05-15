@@ -10,6 +10,8 @@ const { renderAttachmentHTML } = require('../utils/viewHelpers');
 const db = require('../utils/db');
 const CourseDAO = require('../dao/CourseDAO');
 const QuestionDAO = require('../dao/QuestionDAO');
+const ResultDao = require('../dao/ResultDAO');
+const SubmittedAnswerDAO = require('../dao/SubmittedAnswerDAO');
 const renderView = require('../utils/viewRenderer');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -69,13 +71,13 @@ module.exports = (router) => {
                     return;
                 }
 
-                const resultId = await TestDAO.saveResult(testId, user.id, 0, 0, 0, false);
+                const resultId = await ResultDao.saveResult(testId, user.id, 0, 0, 0, false);
                 console.log('[DEBUG] Created new resultId =', resultId);
 
 
 
             // Next, we retrieve the questions and answers
-            const rawQuestions = await TestDAO.getQuestionsAndAnswersByTest(testId);
+            const rawQuestions = await QuestionDAO.getQuestionsAndAnswersByTest(testId);
     
             const questionsMap = {};
     
@@ -140,7 +142,7 @@ module.exports = (router) => {
             console.log('Parsed body:', parsed);
             try {
                 // Retrieve all questions and answers
-                const rawQuestions = await TestDAO.getQuestionsAndAnswersByTest(testId);
+                const rawQuestions = await QuestionDAO.getQuestionsAndAnswersByTest(testId);
 
                 // Forming a structure for validation
                 const questionsMap = {};
@@ -231,7 +233,7 @@ module.exports = (router) => {
                 const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
 
                 const resultId = parseInt(parsed.result_id, 10);
-                await TestDAO.updateResultSummary(resultId, correct, total, percent, isChecked);
+                await ResultDao.updateResultSummary(resultId, correct, total, percent, isChecked);
 
 
                 for (const qId of Object.keys(questionsMap)) {
@@ -244,7 +246,7 @@ module.exports = (router) => {
                         (!isMulti || !Array.isArray(val)); // multi без жодного вибору
                 
                     if (isEmpty) {
-                        await TestDAO.saveSubmittedAnswer(resultId, qId, '');
+                        await SubmittedAnswerDAO.saveSubmittedAnswer(resultId, qId, '');
                     }
                 }
 
@@ -265,22 +267,24 @@ module.exports = (router) => {
                         const allAnswers = Array.isArray(val) ? val : (val ? [val] : []);
 
                         //  Один раз вручну очищаємо попередні відповіді
+                        if (val && (!Array.isArray(val) || val.length > 0)) {
                         await db.query(`
                             DELETE FROM answers_submitted
                             WHERE result_id = $1 AND question_id = $2
                         `, [resultId, qId]);
-
+                        }
+                        
                         //  Додаємо всі вибрані варіанти без повторного DELETE
                         for (const answer of allAnswers) {
                             const match = allOptions.find(a => a.id?.toString() === answer?.toString());
                             const text = match?.text || answer;
                             const answerId = match?.id ? parseInt(match.id) : null;
 
-                            await TestDAO.saveSubmittedAnswer(resultId, qId, text, answerId, true); // ✅ skipDelete = true
+                            await SubmittedAnswerDAO.saveSubmittedAnswer(resultId, qId, text, answerId, true); 
                         }
 
                         // Автоматична перевірка для multi
-                        await TestDAO.evaluateAutoCheckForMulti(resultId, qId);
+                        await SubmittedAnswerDAO.evaluateAutoCheckForMulti(resultId, qId);
                     }
 
 
@@ -292,19 +296,18 @@ module.exports = (router) => {
 
                             
 
-                            await TestDAO.saveSubmittedAnswer(resultId, qId, text, answerId);
+                            await SubmittedAnswerDAO.saveSubmittedAnswer(resultId, qId, text, answerId);
                         }
                     }
 
                     else {
                         // text або number
-                        if (val) {
-                            await TestDAO.saveSubmittedAnswer(resultId, qId, val.trim(), null);
-                        }
+                        const submitted = (val || '').trim();
+                        await SubmittedAnswerDAO.saveSubmittedAnswer(resultId, qId, submitted, null);
                     }
                 }
 
-                await TestDAO.evaluateAutoCheckForOne(resultId);
+                await SubmittedAnswerDAO.evaluateAutoCheckForOne(resultId);
                 
                 // Load the parameter whether to show the result
                 const test = await TestDAO.getTestById(testId);

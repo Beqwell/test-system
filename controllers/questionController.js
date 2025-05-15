@@ -27,7 +27,7 @@ module.exports = (router) => {
         const testId = req.params.testId;
     
         try {
-            const rawQuestions = await TestDAO.getQuestionsAndAnswersByTest(testId);
+            const rawQuestions = await QuestionDAO.getQuestionsAndAnswersByTest(testId);
     
             const questionsMap = {};
     
@@ -170,14 +170,14 @@ module.exports = (router) => {
                 }
 
                 // Створення питання
-                const question = await TestDAO.createQuestion(testId, questionText, questionType, attachmentPath);
+                const question = await QuestionDAO.createQuestion(testId, questionText, questionType, attachmentPath);
 
                 if (isTextOrNumber) {
                     const rawCorrect = fields.manual_correct_answer;
                     const correctAnswerText = typeof rawCorrect === 'string' ? rawCorrect.trim() : String(rawCorrect || '').trim();
 
                     if (correctAnswerText !== '') {
-                        await TestDAO.createAnswer(question.id, correctAnswerText, true);
+                        await QuestionDAO.createAnswer(question.id, correctAnswerText, true);
                     }
                 }
 
@@ -195,7 +195,7 @@ module.exports = (router) => {
                         }
 
                         if (answerText) {
-                            await TestDAO.createAnswer(question.id, answerText, isCorrect);
+                            await QuestionDAO.createAnswer(question.id, answerText, isCorrect);
                         }
                     }
                 }
