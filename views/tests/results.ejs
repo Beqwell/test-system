@@ -1,38 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Test Results</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test Results — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/results.css" />
+  <link rel="stylesheet" href="/css/Back.css" />
 </head>
-<body>
-    <h1>Results for <%= testTitle %></h1>
+<body class="flex-center">
+  <main>
+    <div class="results-box">
+      <h2 class="section-title">📊 Results for "<%= testTitle %>"</h2>
 
-    <% if (results.length === 0) { %>
+      <% if (results.length === 0) { %>
         <p>No students have taken this test yet.</p>
-    <% } else { %>
-        <ul>
-            <% results.forEach(result => { %>
-                <li>
-                    <strong><%= result.student_name %></strong> —
-                    <%= result.score_percent %>% —
-                    <%= new Date(result.submitted_at).toLocaleString() %>
-                    —
-                    Status:
-                    <%= result.is_checked ? "✅ Checked" : "🕒 Waiting" %>
-                    —
-                    <a href="/result/<%= result.id %>">View Details</a>
-                    
-                    <% if (!result.is_checked) { %>
-                        <form method="POST" action="/test/<%= testId %>/result/<%= result.id %>/check">
-                            <button type="submit">Mark as Checked</button>
-                        </form>
-                    <% } %>
-                </li>
-            <% }) %>            
-        </ul>
-    <% } %>
+      <% } else { %>
+        <div class="results-grid">
+          <% results.forEach(result => { %>
+            <div class="result-card <%= result.is_checked ? 'checked' : 'waiting' %>">
+              <div class="result-header">
+                <div class="result-name">👤 <%= result.student_name %></div>
+                <div class="result-submitted">📅 <%= new Date(result.submitted_at).toLocaleString() %></div>
+                <div class="result-score">📈 Score: <strong><%= result.score_percent %>%</strong></div>
+                <div class="result-status">
+                  Status: 
+                  <% if (result.is_checked) { %>
+                    <span class="status-badge green">✔️ Checked</span>
+                  <% } else { %>
+                    <span class="status-badge yellow">🕒 Waiting</span>
+                  <% } %>
+                </div>
+              </div>
 
-    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+              <div class="result-actions">
+                <a href="/result/<%= result.id %>" class="btn small violet">🔍 View</a>
+                <% if (!result.is_checked) { %>
+                  <form method="POST" action="/test/<%= testId %>/result/<%= result.id %>/check" style="display:inline;">
+                    <button type="submit" class="btn small green">✔️ Check</button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
 
+      <div class="back-btn">
+         <a href="<%= backUrl || '/dashboard' %>" class="floating-back-button" title="Back to Dashboard">← Back</a>
+      </div>
+    </div>
+  </main>
 </body>
 </html>

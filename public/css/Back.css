@@ -1,21 +1,21 @@
 .floating-back-button {
   position: fixed;
   bottom: 64px;
-  right: 400px;
-  background-color: #7c3aed;
+  right: 100px;
+  background-color: #8d6dc4;
   color: white;
   padding: 12px 24px;
   border-radius: 40px;
   font-weight: 600;
   font-size: 1rem;
   text-decoration: none;
-  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 8px 20px rgba(177, 167, 187, 0.25);
   z-index: 999;
   transition: background-color 0.25s ease, transform 0.2s ease;
 }
 
 .floating-back-button:hover {
-  background-color: #5b21b6;
+  background-color: #5a4779;
   transform: translateY(-2px);
 }
 

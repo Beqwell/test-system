@@ -1,64 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Edit Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Test — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/editTest.css">
 </head>
 <body>
-    <h1>Edit Test: <%= test.title %></h1>
 
-    <% function toLocalDatetime(dateStr) {
-        if (!dateStr) return '';
-        const d = new Date(dateStr);
-        const offset = d.getTimezoneOffset();
-        d.setMinutes(d.getMinutes() - offset);
-        return d.toISOString().slice(0, 16);
-    } %>
+<main class="edit-test-container">
+  <h1>Edit Test: <%= test.title %></h1>
 
-    <form method="POST" action="/test/<%= test.id %>/edit">
-        <label>Test Title:</label><br>
-        <input type="text" name="title" value="<%= test.title %>" required><br><br>
+  <% function toLocalDatetime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const offset = d.getTimezoneOffset();
+      d.setMinutes(d.getMinutes() - offset);
+      return d.toISOString().slice(0, 16);
+  } %>
 
-        <label>Visible to Students:</label><br>
-        <label>
-            <input type="radio" name="is_visible" value="true" <%= test.is_visible ? 'checked' : '' %>> Yes
-        </label>
-        <label>
-            <input type="radio" name="is_visible" value="false" <%= !test.is_visible ? 'checked' : '' %>> No
-        </label>
-        <br><br>
+  <form method="POST" action="/test/<%= test.id %>/edit" class="form">
+    <div class="form-group">
+      <label>📝 Test Title:</label>
+      <input type="text" name="title" value="<%= test.title %>" required>
+    </div>
 
-        <label>Start Time:</label><br>
-        <input type="datetime-local" name="start_time"
-            value="<%= toLocalDatetime(test.start_time) %>"><br><br>
+    <div class="form-group">
+      <label>👁️ Visible to Students:</label>
+      <div class="radio-group">
+        <label><input type="radio" name="is_visible" value="true" <%= test.is_visible ? 'checked' : '' %>> Yes</label>
+        <label><input type="radio" name="is_visible" value="false" <%= !test.is_visible ? 'checked' : '' %>> No</label>
+      </div>
+    </div>
 
-        <label>End Time:</label><br>
-        <input type="datetime-local" name="end_time"
-            value="<%= toLocalDatetime(test.end_time) %>"><br><br>
+    <div class="form-group">
+      <label>📅 Start Time:</label>
+      <input type="datetime-local" name="start_time" value="<%= toLocalDatetime(test.start_time) %>">
+    </div>
 
-        <label>Time Limit (minutes):</label><br>
-        <input type="number" name="time_limit_minutes"
-            value="<%= test.time_limit_minutes ?? '' %>" min="0"><br><br>
+    <div class="form-group">
+      <label>📅 End Time:</label>
+      <input type="datetime-local" name="end_time" value="<%= toLocalDatetime(test.end_time) %>">
+    </div>
 
-        <label>Max Attempts:</label><br>
-        <input type="number" name="max_attempts"
-            value="<%= test.max_attempts ?? '' %>" min="0"><br><br>
+    <div class="form-group">
+      <label>⏱️ Time Limit (minutes):</label>
+      <input type="number" name="time_limit_minutes" value="<%= test.time_limit_minutes ?? '' %>" min="0">
+    </div>
 
-        <label>Show Result to Student:</label><br>
-        <input type="checkbox" name="show_result_to_student"
-            <%= test.show_result_to_student ? 'checked' : '' %>><br><br>
+    <div class="form-group">
+      <label>🔁 Max Attempts:</label>
+      <input type="number" name="max_attempts" value="<%= test.max_attempts ?? '' %>" min="0">
+    </div>
 
-        <button type="submit">Save Changes</button>
+    <div class="form-group checkbox">
+      <label><input type="checkbox" name="show_result_to_student" <%= test.show_result_to_student ? 'checked' : '' %>> Show Result to Student</label>
+    </div>
+
+    <button type="submit" class="submit-button">💾 Save Changes</button>
+  </form>
+
+  <% if (!test.is_visible) { %>
+    <form method="POST" action="/test/<%= test.id %>/force-visible" onsubmit="return confirm('Make this test visible now?')" class="force-form">
+      <button type="submit" class="force-button">⚡ Force Open Test Now</button>
     </form>
+  <% } %>
 
-    <% if (!test.is_visible) { %>
-        <form method="POST" action="/test/<%= test.id %>/force-visible" style="margin-top: 20px;">
-            <button type="submit" onclick="return confirm('Make this test visible now?')">
-                Force Open Test Now
-            </button>
-        </form>
-    <% } %>
+  <a href="<%= backUrl || '/dashboard' %>" class="back-link">← Back</a>
+</main>
 
-    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
 </body>
 </html>

@@ -1,0 +1,157 @@
+:root {
+  --violet: #7c3aed;
+  --violet-dark: #5b21b6;
+  --violet-soft: #ede9fe;
+  --lavender-bg: #f3ecff;
+  --white: #ffffff;
+  --text-dark: #2e1065;
+  --text-muted: #6b7280;
+  --radius: 14px;
+  --shadow: 0 12px 28px rgba(124, 58, 237, 0.12);
+  --transition: 0.25s ease;
+  --green: #16a34a;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--lavender-bg);
+  color: var(--text-dark);
+  padding: 2rem 1rem 4rem;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: var(--violet-dark);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.message-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.message-item {
+  background: var(--white);
+  border-left: 6px solid var(--violet);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.6rem;
+  box-shadow: var(--shadow);
+}
+
+.message-item.read {
+  border-left-color: var(--green);
+  background: #f0fdf4;
+}
+
+.message-header {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-header strong {
+  color: var(--text-dark);
+  font-size: 1rem;
+}
+
+.message-content {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  white-space: pre-wrap;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.mark-btn {
+  background: var(--violet);
+  color: white;
+  border: none;
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mark-btn:hover {
+  background: var(--violet-dark);
+}
+
+.read-indicator {
+  font-size: 0.92rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.no-msg {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+.back-btn a {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--violet-dark);
+}
+.back-btn a:hover {
+  color: var(--violet);
+}
+
+/* ✅ Mobile Responsive */
+@media (max-width: 600px) {
+  body {
+    padding: 1.5rem 0.8rem 3rem;
+  }
+
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .message-item {
+    padding: 1rem 1.2rem;
+  }
+
+  .message-content {
+    font-size: 0.95rem;
+  }
+
+  .mark-btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .read-indicator {
+    font-size: 0.88rem;
+  }
+
+  .back-btn a {
+    font-size: 0.9rem;
+  }
+}

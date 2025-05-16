@@ -1,0 +1,117 @@
+.edit-test-container {
+  max-width: 640px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text-dark);
+}
+
+.edit-test-container h1 {
+  text-align: center;
+  color: var(--violet-dark);
+  margin-bottom: 2rem;
+  font-size: 1.7rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: var(--violet-dark);
+}
+
+.form-group input[type="text"],
+.form-group input[type="datetime-local"],
+.form-group input[type="number"] {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.radio-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.submit-button {
+  background-color: var(--violet);
+  color: white;
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.submit-button:hover {
+  background-color: var(--violet-dark);
+}
+
+.force-form {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.force-button {
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.force-button:hover {
+  background-color: #d97706;
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 2.5rem;
+  color: var(--violet-dark);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .edit-test-container {
+    margin: 2rem 1rem;
+    padding: 1.5rem;
+  }
+}

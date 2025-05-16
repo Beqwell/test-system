@@ -1,30 +1,44 @@
 <!DOCTYPE html>
-<html>
-<head><title>Messages</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Messages — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/messages.css" />
+</head>
 <body>
-  <h1>📩 Messages for <%= username %></h1>
+  <div class="container">
+    <h1>📩 Messages for <%= username %></h1>
 
-  <% if (messages.length === 0) { %>
-    <p>No messages.</p>
-  <% } else { %>
-    <ul>
-      <% messages.forEach(m => { %>
-        <li style="margin-bottom: 15px;">
-          <strong><%= m.teacher_name %></strong> — <em><%= m.course_name %></em><br>
-          <%= m.content %><br>
-          <small><%= new Date(m.created_at).toLocaleString() %></small><br>
-          <% if (!m.is_read) { %>
-            <form method="POST" action="/messages/read/<%= m.id %>">
-              <button type="submit">Mark as read</button>
-            </form>
-          <% } else { %>
-            <span style="color: green;">✓ Read</span>
-          <% } %>
-        </li>
-      <% }) %>
-    </ul>
-  <% } %>
+    <% if (messages.length === 0) { %>
+      <p class="no-msg">You have no messages.</p>
+    <% } else { %>
+      <ul class="message-list">
+        <% messages.forEach(m => { %>
+          <li class="message-item <%= m.is_read ? 'read' : 'unread' %>">
+            <div class="message-header">
+              <strong><%= m.teacher_name %></strong> — <em><%= m.course_name %></em>
+              <small><%= new Date(m.created_at).toLocaleString() %></small>
+            </div>
+            <p class="message-content"><%= m.content %></p>
 
-  <br><a href="/dashboard">← Back</a>
+            <div class="message-footer">
+              <% if (!m.is_read) { %>
+                <form method="POST" action="/messages/read/<%= m.id %>">
+                  <button type="submit" class="mark-btn">✅ Mark as read</button>
+                </form>
+              <% } else { %>
+                <span class="read-indicator">✓ Read</span>
+              <% } %>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+
+    <div class="back-btn">
+      <a href="/dashboard">← Back to Dashboard</a>
+    </div>
+  </div>
 </body>
 </html>

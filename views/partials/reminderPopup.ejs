@@ -1,61 +1,20 @@
 <% if (reminderTests && reminderTests.length > 0) { %>
-<div id="reminder-popup" style="
-  display: none; /* сховано спочатку */
-  /* display: block; */ /* для тестування */
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  max-width: 92%;
-  background: #ffffffee;
-  border: 2px solid #c4b5fd;
-  border-radius: 16px;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
-  padding: 28px 36px;
-  z-index: 10000;
-  backdrop-filter: blur(8px);
-  animation: fadeIn 0.4s ease-out;
-  font-family: 'Poppins', sans-serif;
-">
-  <button onclick="document.getElementById('reminder-popup').remove()" style="
-    position: absolute;
-    top: 12px;
-    right: 18px;
-    background: none;
-    border: none;
-    font-size: 22px;
-    color: #666;
-    cursor: pointer;
-  ">&times;</button>
+<div id="reminder-popup" class="reminder-popup">
+  <button onclick="document.getElementById('reminder-popup').remove()" class="close-btn">&times;</button>
 
-  <h2 style="
-    color: #5b21b6;
-    font-weight: 600;
-    font-size: 20px;
-    margin-bottom: 25px;
-  ">⏰ Upcoming Tests</h2>
+  <h2>⏰ Upcoming Tests</h2>
 
-  <div style="display: flex; flex-direction: column; gap: 22px;">
+  <div class="reminder-list">
     <% reminderTests.forEach(test => { %>
-      <div style="padding-bottom: 18px; border-bottom: 1px solid #ddd;">
-        <strong style="font-size: 1.05rem;"><%= test.title %></strong><br>
+      <div class="reminder-item">
+        <strong><%= test.title %></strong><br>
         📘 <%= test.course_name %><br>
         ⏱️ Time limit: <%= test.time_limit_minutes || '∞' %> min<br>
         📅 Start: <%= test.start_time ? new Date(test.start_time).toLocaleString() : '-' %><br>
         ⏳ End: <%= test.end_time ? new Date(test.end_time).toLocaleString() : '-' %><br>
         🎯 Max attempts: <%= test.max_attempts || '∞' %><br><br>
         <a href="/test/<%= test.id %>">
-          <button style="
-            padding: 8px 14px;
-            background: #7c3aed;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            font-size: 0.9rem;
-          ">Start Test</button>
+          <button class="start-btn">Start Test</button>
         </a>
       </div>
     <% }) %>
@@ -76,35 +35,4 @@
   }
 })();
 </script>
-
-<style>
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, -60%); }
-    to { opacity: 1; transform: translate(-50%, -50%); }
-  }
-
-  @media (max-width: 768px) {
-    #reminder-popup {
-      width: 90% !important;
-      padding: 20px !important;
-    }
-
-    #reminder-popup h2 {
-      font-size: 18px !important;
-      text-align: center;
-    }
-
-    #reminder-popup button {
-      font-size: 20px;
-    }
-
-    #reminder-popup div {
-      font-size: 0.92rem;
-    }
-
-    #reminder-popup a button {
-      width: 100%;
-    }
-  }
-</style>
 <% } %>

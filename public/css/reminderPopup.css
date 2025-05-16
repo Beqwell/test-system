@@ -1,0 +1,114 @@
+#reminder-popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-width: 92%;
+  background: #ffffffec;
+  border: 2px solid #d6bbfb;
+  border-radius: 18px;
+  box-shadow: 0 16px 32px rgba(124, 58, 237, 0.15);
+  padding: 30px 38px;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.4s ease-out;
+  font-family: 'Poppins', sans-serif;
+}
+
+#reminder-popup h2 {
+  color: var(--violet-dark);
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.reminder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.reminder-item {
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.97rem;
+  line-height: 1.65;
+  color: var(--text-dark);
+}
+
+.reminder-item strong {
+  font-size: 1.05rem;
+  color: var(--violet-dark);
+}
+
+.start-btn {
+  margin-top: 12px;
+  background-color: var(--violet);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.15);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.start-btn:hover {
+  background-color: var(--violet-dark);
+  box-shadow: 0 4px 12px rgba(91, 33, 182, 0.25);
+}
+
+.close-btn {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -60%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@media (max-width: 768px) {
+  #reminder-popup {
+    width: 90% !important;
+    padding: 22px 20px !important;
+  }
+
+  #reminder-popup h2 {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .reminder-item {
+    font-size: 0.93rem;
+    line-height: 1.55;
+  }
+
+  .start-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .close-btn {
+    font-size: 1.3rem;
+    top: 10px;
+    right: 14px;
+  }
+}

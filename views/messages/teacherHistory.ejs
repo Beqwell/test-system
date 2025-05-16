@@ -1,54 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sent Messages</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    li {
-      margin-bottom: 15px;
-      line-height: 1.5;
-    }
-    hr {
-      margin-top: 10px;
-    }
-    a {
-      text-decoration: none;
-      color: #5b21b6;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/teacherHistory.css">
+  <link rel="stylesheet" href="/css/Back.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>📨 Sent Messages — "<%= courseName %>"</h1>
+  <main class="main">
+    <h1 class="title">📨 Sent Messages — "<%= courseName %>"</h1>
 
+    <% if (messages.length === 0) { %>
+      <p class="no-msg">No messages have been sent yet.</p>
+    <% } else { %>
+      <div class="messages-list">
+        <% messages.forEach(msg => { %>
+          <div class="message-card">
+            <div class="msg-header">
+              <span class="msg-to"><strong>To:</strong> <%= msg.student_id ? msg.student_name : 'Entire Course' %></span>
+              <span class="msg-type <%= msg.student_id ? 'personal' : 'group' %>">
+                <%= msg.student_id ? 'Personal' : 'Group' %>
+              </span>
+            </div>
+            <div class="msg-content"><%= msg.content %></div>
+            <div class="msg-footer">
+              <span>Sent: <%= new Date(msg.created_at).toLocaleString() %></span>
+              <% if (msg.student_id) { %>
+                <span>Status: <span class="<%= msg.is_read ? 'read' : 'unread' %>">
+                  <%= msg.is_read ? '✓ Read' : '🕒 Not Read' %>
+                </span></span>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
 
-  <ul>
-    <% messages.forEach(msg => { %>
-      <li>
-        <div><strong>To:</strong>
-          <% if (msg.student_id) { %>
-            <%= msg.student_name %>
-          <% } else { %>
-            All Students
-          <% } %>
-        </div>
-        <div><strong>Message:</strong> <%= msg.content %></div>
-        <div><strong>Time:</strong> <%= new Date(msg.created_at).toLocaleString() %></div>
-        <% if (msg.student_id) { %>
-          <div>Status: <%= msg.is_read ? '✅ Read' : '🕒 Not Read' %></div>
-        <% } %>
-        <hr>
-      </li>
-    <% }) %>
-  </ul>
+    <div class="back-btn">
+       <a href="/dashboard" class="floating-back-button" title="Back to Dashboard">← Back</a>
 
-  <br>
-  <a href="/dashboard">← Back</a>
+    </div>
+  </main>
 </body>
 </html>

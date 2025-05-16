@@ -1,0 +1,112 @@
+.results-box {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem 2.5rem;
+  width: 100%;
+  max-width: 800px;
+  min-width: 700px;
+  min-height: 580px; 
+  margin: 2rem auto;
+  box-sizing: border-box;
+}
+
+
+.results-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.result-card {
+  background: var(--violet-soft);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.6rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  border-left: 6px solid var(--violet);
+}
+
+.result-card.checked {
+  border-left-color: var(--success);
+}
+.result-card.waiting {
+  border-left-color: var(--warning);
+}
+
+.result-header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.97rem;
+  color: var(--text-dark);
+}
+
+.result-score strong {
+  color: var(--violet-dark);
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.result-actions .btn {
+  background-color: #e0d7fb;
+  color: var(--violet-dark);
+  padding: 0.5rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid #d6bbfb;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+.result-actions .btn:hover {
+  background-color: #d9ccf2;
+  border-color: var(--violet-dark);
+}
+
+.status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.status-badge.green {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status-badge.yellow {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.back-btn {
+  margin-top: 2rem;
+  text-align: center;
+}
+.back-btn a {
+  color: var(--violet-dark);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: var(--lavender-bg);
+  padding-top: 3rem;
+}

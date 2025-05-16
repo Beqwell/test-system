@@ -1,0 +1,134 @@
+.add-question-container {
+  max-width: 700px;
+  margin: 3rem auto;
+  padding: 2.5rem 2rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text-dark);
+  font-family: 'Poppins', sans-serif;
+}
+
+.add-question-container h1 {
+  text-align: center;
+  color: var(--violet-dark);
+  margin-bottom: 2rem;
+  font-size: 1.7rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: var(--violet-dark);
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.form-section {
+  margin-top: 2rem;
+}
+
+.form-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--violet-dark);
+}
+
+.answer-entry {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--violet-soft);
+}
+
+.answer-entry input[type="text"] {
+  margin-top: 0.4rem;
+  width: 100%;
+}
+
+.preview {
+  margin-top: 0.5rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.submit-button,
+.publish-form button {
+  background-color: var(--violet);
+  color: white;
+  padding: 0.75rem 1.6rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 1rem;
+}
+
+.submit-button:hover,
+.publish-form button:hover {
+  background-color: var(--violet-dark);
+}
+
+.publish-form {
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+.question-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.question-list li {
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+
+.back-link {
+  display: block;
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--violet-dark);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .add-question-container {
+    padding: 2rem 1rem;
+    margin: 2rem 1rem;
+  }
+}

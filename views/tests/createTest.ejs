@@ -1,34 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Create Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Test — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/createTest.css">
 </head>
 <body>
+
+  <main class="create-test-container">
     <h1>Create New Test</h1>
 
-    <form method="POST" action="/course/<%= courseId %>/create-test">
-        <label>Test Title:</label><br>
-        <input type="text" name="title" required><br><br>
+    <form method="POST" action="/course/<%= courseId %>/create-test" class="form">
+      <div class="form-group">
+        <label>📝 Test Title:</label>
+        <input type="text" name="title" required>
+      </div>
 
-        <label>Make Test Visible Immediately:</label><br>
-        <input type="checkbox" name="requested_visible" checked><br><br>
+      <div class="form-group checkbox">
+        <label><input type="checkbox" name="requested_visible" checked> Make Test Visible Immediately</label>
+      </div>
 
-        <label>Start Date and Time (optional):</label><br>
-        <input type="datetime-local" name="start_time"><br><br>
+      <div class="form-group">
+        <label>📅 Start Date and Time (optional):</label>
+        <input type="datetime-local" name="start_time">
+      </div>
 
-        <label>End Date and Time (optional):</label><br>
-        <input type="datetime-local" name="end_time"><br><br>
+      <div class="form-group">
+        <label>📅 End Date and Time (optional):</label>
+        <input type="datetime-local" name="end_time">
+      </div>
 
-        <label>Time Limit (in minutes, optional):</label><br>
-        <input type="number" name="time_limit_minutes" min="1"><br><br>
+      <div class="form-group">
+        <label>⏱️ Time Limit (in minutes, optional):</label>
+        <input type="number" name="time_limit_minutes" min="1">
+      </div>
 
-        <label>Maximum Attempts:</label><br>
-        <input type="number" name="max_attempts" min="0" placeholder="0 = unlimited"><br><br>                
+      <div class="form-group">
+        <label>🔁 Maximum Attempts:</label>
+        <input type="number" name="max_attempts" min="0" placeholder="0 = unlimited">
+      </div>
 
-        <button type="submit">Create Test</button>
+      <button type="submit" class="submit-button">Create Test</button>
     </form>
 
-    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+    <a href="<%= backUrl || '/dashboard' %>" class="back-link">← Back</a>
+  </main>
+
 </body>
 </html>
