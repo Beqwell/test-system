@@ -99,6 +99,19 @@ class ResultDao{
         return rows;
     }
 
+    static async getLastResultsForStudent(studentId, limit = 5) {
+        const query = `
+            SELECT r.score_percent, r.is_checked, t.title
+            FROM results r
+            JOIN tests t ON r.test_id = t.id
+            WHERE r.student_id = $1
+            ORDER BY r.submitted_at DESC
+            LIMIT $2
+        `;
+        const { rows } = await db.query(query, [studentId, limit]);
+        return rows;
+    }
+    
     
 
 }

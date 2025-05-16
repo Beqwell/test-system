@@ -1,32 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Teacher Courses</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teacher Dashboard — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/teacherCourses.css">
 </head>
 <body>
-    <h1>Welcome, <%= username %> (Teacher)</h1>
+<!-- ☰ Toggle Button -->
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
 
-    <h2>Your Courses</h2>
-    <ul>
-        <% courses.forEach(course => { %>
-            <li>
-                <%= course.name %> (Join Code: <%= course.join_code %>)
-                — <a href="/course/<%= course.id %>/tests">View Tests</a>
-                — <a href="/course/<%= course.id %>/create-test">Create Test</a>
-                — <a href="/course/<%= course.id %>/students">View Students</a>
-                — <a href="/delete-course/<%= course.id %>" onclick="return confirm('Are you sure you want to delete this course?');">Delete Course</a>
-            </li>
-        <% }) %>
-    </ul>
-    
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div>
+    <h1>EduPlatform</h1>
+    <nav class="nav-links">
+      <a href="/dashboard" class="active">🏠 Dashboard</a>
+    </nav>
+  </div>
+  <div class="logout">
+    <a href="/logout">Logout</a>
+  </div>
+</aside>
 
-    <h2>Create a new Course</h2>
-    <form method="POST" action="/create-course">
-        <input type="text" name="name" placeholder="Course name" required>
-        <button type="submit">Create</button>
+<!-- Main -->
+<main class="main">
+  <div class="header">
+    <div class="welcome">Welcome, <%= username %> <small>(Teacher)</small></div>
+    <form method="POST" action="/create-course" class="create-form">
+      <input type="text" name="name" placeholder="New course name" required />
+      <button type="submit">Create</button>
     </form>
+  </div>
 
-    <br><a href="/logout">Logout</a>
+  <div class="section">
+    <h2>Your Courses</h2>
+    <% if (courses.length === 0) { %>
+      <p>You don't have any courses yet.</p>
+    <% } else { %>
+      <div class="courses-list">
+        <% courses.forEach(course => { %>
+          <div class="course-card">
+            <div class="course-left">
+              <div class="course-icon">📘</div>
+              <div class="course-content">
+                <h3 class="course-title"><%= course.name %></h3>
+                <div class="course-meta">
+                  🧾 <strong>Join Code:</strong> <span class="join-code"><%= course.join_code %></span>
+                  <button class="copy-btn" type="button" title="Copy join code" onclick="copyJoinCode(this, '<%= course.join_code %>')" style="background:none;border:none;padding:0;cursor:pointer;">🔗</button>
+                  <span class="copied-msg" style="display:none; color: #888; font-size: 0.85em; margin-left: 6px;">Copied</span>
+                </div>
+              </div>
+            </div>
+            <div class="course-actions">
+              <a href="/course/<%= course.id %>/tests">📋 View</a>
+              <a href="/course/<%= course.id %>/create-test">➕ Create Test</a>
+              <a href="/course/<%= course.id %>/students">👥 Students</a>
+              <a href="/delete-course/<%= course.id %>" onclick="return confirm('Are you sure you want to delete this course?');">🗑 Delete</a>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+<script>
+function copyJoinCode(btn, code) {
+    navigator.clipboard.writeText(code);
+    const msg = btn.nextElementSibling;
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 100);
+}
+
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+  }
+</script>
 </body>
 </html>

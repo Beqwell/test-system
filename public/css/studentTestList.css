@@ -1,0 +1,117 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f3ecff;
+  color: #2e1065;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.course-average {
+  float: right;
+  background: #e0f7fa;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: 1px solid #26c6da;
+  font-size: 1rem;
+  color: #007c91;
+  line-height: 1.2;
+}
+
+.clear {
+  clear: both;
+  margin-bottom: 20px;
+}
+
+.empty-msg {
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 1.5rem;
+}
+
+ul.test-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.test-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+  border-left: 6px solid #7c3aed;
+}
+
+.test-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #5b21b6;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.test-status {
+  color: #6b7280;
+  font-style: italic;
+  margin: 0.4rem 0;
+}
+
+.test-status.warning {
+  color: #d97706;
+}
+
+.test-status.locked {
+  color: #dc2626;
+}
+
+.test-info {
+  font-size: 0.95rem;
+  color: #374151;
+  margin-top: 0.5rem;
+  line-height: 1.6;
+}
+
+.test-score {
+  margin-top: 0.4rem;
+  font-weight: 500;
+  color: #15803d;
+}
+
+.start-button {
+  display: inline-block;
+  margin-top: 1rem;
+  background-color: #7c3aed;
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.start-button:hover {
+  background-color: #5b21b6;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 30px;
+  color: #7c3aed;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #5b21b6;
+  text-decoration: underline;
+}

@@ -1,47 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>All My Tests</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All My Tests — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/allTests.css">
+  <link rel="stylesheet" href="/css/messageBell.css">
 </head>
 <body>
-    <h1>All Available Tests</h1>
-
-    <h3 style="color: green;">
-        🧮 Your average score across all courses: <%= averageScore %>%
-    </h3>
-
-    <% if (tests.length === 0) { %>
+  <!-- ☰ Toggle Button -->
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <h1>EduPlatform</h1>
+      <nav class="nav-links">
+        <a href="/student/info">👤 My Info</a>
+        <a href="/dashboard">🏠 Dashboard</a>
+        <a href="/student/all-tests" class="active">📈 All Tests</a>
+        <a href="#">🧾 Results</a>
+      </nav>
+    </div>
+    <div class="logout">
+      <a href="/logout">Logout</a>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="header">
+      <h1>All Available Tests</h1>
+      <div class="average-score">
+        🧮 <%= averageScore %>%<br>
+        <span style="font-size:0.96rem; font-weight:400; color:var(--text-muted);">Your average score</span>
+      </div>
+      <%- include('../partials/messageBell', { allMessages }) %>
+    </div>
+    <div class="tests-section">
+      <h2>Tests</h2>
+      <% if (tests.length === 0) { %>
         <p>No tests available.</p>
-    <% } else { %>
-        <ul>
-        <% tests.forEach(test => { %>
-            <li style="margin-bottom: 20px;">
-                <strong><%= test.title %></strong>  
-                (Course: <%= test.course_name %>)<br>
-                Start: <%= test.start_time ? new Date(test.start_time).toLocaleString() : '-' %><br>
-                End: <%= test.end_time ? new Date(test.end_time).toLocaleString() : '-' %><br>
-                Time Limit: <%= test.time_limit_minutes ? test.time_limit_minutes + ' min' : '-' %><br>
-                Attempts: <%= test.attempts_made %> /
-                          <%= test.max_attempts ? test.max_attempts : '-' %><br>
-                Score: <%= test.last_score != null ? test.last_score + '%' : '-' %><br>
-
-                <% if (!test.start_time || new Date() >= new Date(test.start_time)) { %>
-                    <% if (!test.attempts_left || test.attempts_left > 0) { %>
-                        <form method="GET" action="/test/<%= test.id %>" style="display: inline;">
-                            <button type="submit">Start Test</button>
-                        </form>
-                    <% } else { %>
-                        <em>No attempts left</em>
-                    <% } %>
-                <% } else { %>
-                    <em>Not available yet</em>
+      <% } else { %>
+        <div class="test-list">
+          <% tests.forEach(test => {
+            const isStarted = !test.start_time || new Date() >= new Date(test.start_time);
+            const noAttemptsLeft = test.max_attempts !== null && test.max_attempts !== undefined && test.max_attempts !== 0 && test.attempts_made >= test.max_attempts;
+            let status = "active";
+            if (!isStarted) status = "warning";
+            if (noAttemptsLeft) status = "locked";
+            let score = test.last_score != null ? test.last_score : null;
+            let scoreClass = '';
+            if (score !== null) {
+              if (score >= 90) scoreClass = 'green';
+              else if (score <= 49) scoreClass = 'red';
+            }
+          %>
+            <div class="test-card <%= status %>">
+              <div class="test-title-row">
+                <div class="test-title"><%= test.title %></div>
+                <span class="test-status <%= status %>">
+                  <% if (!isStarted) { %>
+                    Not available
+                  <% } else if (noAttemptsLeft) { %>
+                    No attempts left
+                  <% } else { %>
+                    Available
+                  <% } %>
+                </span>
+              </div>
+              <div class="test-meta">
+                <span><strong>Course:</strong> <%= test.course_name %></span><br>
+                <span><strong>Start:</strong> <%= test.start_time ? new Date(test.start_time).toLocaleString() : '-' %></span><br>
+                <span><strong>End:</strong> <%= test.end_time ? new Date(test.end_time).toLocaleString() : '-' %></span><br>
+                <span>
+                  <strong>Time Limit:</strong> <%= test.time_limit_minutes ? test.time_limit_minutes + ' min' : '-' %>
+                </span>
+              </div>
+              <div>
+                <span class="badge<%= noAttemptsLeft ? ' red' : (isStarted ? ' green' : ' grey') %>">
+                  Attempts: <%= test.attempts_made %>/<%= test.max_attempts ? test.max_attempts : '∞' %>
+                </span>
+                <span class="test-score-badge <%= scoreClass %>" style="margin-left:0.5rem;">
+                  <%= score !== null ? score + '%' : '-' %>
+                </span>
+              </div>
+              <div class="test-actions">
+                <% if (isStarted && !noAttemptsLeft) { %>
+                  <form method="GET" action="/test/<%= test.id %>" style="display:inline;">
+                    <button type="submit">Start Test</button>
+                  </form>
+                <% } else if (!isStarted) { %>
+                  <em style="color:var(--warning);">Opens: <%= test.start_time ? new Date(test.start_time).toLocaleString() : '-' %></em>
+                <% } else if (noAttemptsLeft) { %>
+                  <em style="color:var(--danger);">No attempts left. Contact your teacher to request more.</em>
                 <% } %>
-            </li>
-        <% }) %>
-        </ul>
-    <% } %>
-
-    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+    <br>
+    <a href="<%= backUrl || '/dashboard' %>" style="color:var(--violet-dark);font-weight:600;text-decoration:none;">
+      ← Back to Dashboard
+    </a>
+  </main>
+  <script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

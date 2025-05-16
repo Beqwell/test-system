@@ -248,14 +248,30 @@ class TestDAO {
     }// Get the average score for a course
 
     static async getAverageScoreForStudentAllCourses(studentId) {
-        const query = `
-            SELECT AVG(COALESCE(r.score_percent, 0)) AS avg_score
-            FROM results r
-            WHERE r.student_id = $1 AND r.is_checked = true
-        `;
-        const { rows } = await db.query(query, [studentId]);
-        return rows[0].avg_score ? Math.round(rows[0].avg_score) : 0;
-    } // Get the average score for a student across all courses
+    const query = `
+        SELECT 
+            AVG(score_data.last_score) AS avg_score
+        FROM (
+            SELECT
+                t.id AS test_id,
+                COALESCE((
+                    SELECT r.score_percent
+                    FROM results r
+                    WHERE r.student_id = $1
+                      AND r.test_id = t.id
+                      AND r.is_checked = true
+                    ORDER BY r.submitted_at DESC
+                    LIMIT 1
+                ), 0) AS last_score
+            FROM tests t
+            JOIN courses c ON t.course_id = c.id
+            JOIN students_courses sc ON sc.course_id = c.id AND sc.student_id = $1
+            WHERE t.is_visible = true
+        ) score_data
+    `;
+    const { rows } = await db.query(query, [studentId]);
+    return rows[0].avg_score !== null ? Math.round(rows[0].avg_score) : 0;
+    }// Get the average score for a student across all courses
 
     static async getReminderTestsForStudent(studentId, max = 3) {
         const now = new Date();
@@ -315,6 +331,100 @@ class TestDAO {
     }
     return map;
     } // Get the count of unchecked tests for a course
+
+    static async getAverageScorePerCourse(studentId) {
+        const query = `
+            SELECT 
+                c.id AS course_id,
+                c.name AS course_name,
+                u.username AS teacher_name,
+                ROUND(AVG(scores.last_score)::numeric, 2) AS avg_score
+            FROM courses c
+            JOIN users u ON u.id = c.teacher_id
+            JOIN students_courses sc ON sc.course_id = c.id AND sc.student_id = $1
+            LEFT JOIN LATERAL (
+                SELECT 
+                    t.id AS test_id,
+                    COALESCE((
+                        SELECT r.score_percent
+                        FROM results r
+                        WHERE r.test_id = t.id AND r.student_id = $1 AND r.is_checked = true
+                        ORDER BY r.submitted_at DESC
+                        LIMIT 1
+                    ), 0) AS last_score
+                FROM tests t
+                WHERE t.course_id = c.id AND t.is_visible = true
+            ) scores ON true
+            GROUP BY c.id, c.name, u.username
+            HAVING COUNT(scores.test_id) > 0
+            ORDER BY avg_score DESC
+        `;
+        const { rows } = await db.query(query, [studentId]);
+        return rows;
+    }
+
+    static async getUpcomingTests(studentId, limit = 5) {
+        const { rows: upcoming } = await db.query(`
+            SELECT t.id, t.title, t.start_time, t.end_time, c.name AS course_name
+            FROM tests t
+            JOIN courses c ON c.id = t.course_id
+            JOIN students_courses sc ON sc.course_id = c.id
+            WHERE sc.student_id = $1
+            AND t.is_visible = true
+            AND t.end_time IS NOT NULL AND t.end_time > NOW()
+            AND NOT EXISTS (
+                SELECT 1 FROM results r
+                WHERE r.test_id = t.id AND r.student_id = $1
+            )
+            ORDER BY t.end_time ASC
+            LIMIT $2
+        `, [studentId, limit]);
+
+        if (upcoming.length >= limit) return upcoming;
+
+        const excludeIds = upcoming.map(t => t.id);
+        const { rows: randomFill } = await db.query(`
+            SELECT t.id, t.title, t.start_time, t.end_time, c.name AS course_name
+            FROM tests t
+            JOIN courses c ON c.id = t.course_id
+            JOIN students_courses sc ON sc.course_id = c.id
+            WHERE sc.student_id = $1
+            AND t.is_visible = true
+            AND (t.end_time IS NULL OR t.end_time > NOW())
+            AND NOT EXISTS (
+                SELECT 1 FROM results r
+                WHERE r.test_id = t.id AND r.student_id = $1
+            )
+            ${excludeIds.length ? `AND t.id NOT IN (${excludeIds.join(',')})` : ''}
+            ORDER BY RANDOM()
+            LIMIT $2
+        `, [studentId, limit - upcoming.length]);
+
+        return [...upcoming, ...randomFill];
+    }
+
+    static async getCourseTestStats(studentId) {
+        const query = `
+            SELECT 
+                c.name AS course_name,
+                COUNT(DISTINCT t.id) AS total_tests,
+                COUNT(DISTINCT r.test_id) AS completed_tests,
+                ROUND(
+                    CASE WHEN COUNT(DISTINCT t.id) = 0 THEN 0
+                        ELSE 100.0 * COUNT(DISTINCT r.test_id) / COUNT(DISTINCT t.id)
+                    END, 1
+                ) AS completion_percent
+            FROM courses c
+            JOIN students_courses sc ON sc.course_id = c.id
+            LEFT JOIN tests t ON t.course_id = c.id AND t.is_visible = true
+            LEFT JOIN results r ON r.test_id = t.id AND r.student_id = $1
+            WHERE sc.student_id = $1
+            GROUP BY c.name
+        `;
+        const { rows } = await db.query(query, [studentId]);
+        return rows;
+    }
+
 
  
     

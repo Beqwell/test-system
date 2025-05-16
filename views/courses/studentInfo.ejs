@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Info — EduPlatform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/studentInfo.css">
+  <link rel="stylesheet" href="/css/messageBell.css">
+</head>
+<body>
+
+  <!-- Toggle Button -->
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <h1>EduPlatform</h1>
+      <nav class="nav-links">
+        <a href="/student/info" class="active">👤 My Info</a>
+        <a href="/dashboard">🏠 Dashboard</a>
+        <a href="/student/all-tests">📈 All Tests</a>
+        <a href="#">🧾 Results</a>
+      </nav>
+    </div>
+    <div class="logout">
+      <a href="/logout">Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <h1>👤 My Info</h1>
+
+    <div class="info-grid">
+      <div class="info-block">
+        <h3>👤 Username</h3>
+        <p><strong><%= username %></strong></p>
+        <h3>🎓 Role</h3>
+        <p>Student</p>
+      </div>
+            <%- include('../partials/messageBell', { allMessages }) %>
+      <div class="info-block">
+        <h3>📊 Average Score</h3>
+        <div class="badge"><%= basicStats.avg_score %>%</div>
+      </div>
+    </div>
+
+    <div class="section-title">📚 Course Statistics</div>
+    <div class="info-two-col">
+      <div class="stats-block">
+        <h3>📦 Summary</h3>
+        <p><strong>Courses joined:</strong> <%= basicStats.courses_joined %></p>
+        <p><strong>Tests taken:</strong> <%= basicStats.tests_taken %></p>
+        <p><strong>Tests graded:</strong> <%=  basicStats.tests_passed %></p>
+      </div>
+      <div class="stats-block">
+        <h3>📘 Averages by Course</h3>
+        <% courseAverages.forEach(c => { %>
+          <div class="course-avg">
+            <% if (c.avg_score >= 85) { %><span class="high"><%= c.course_name %></span><% } else { %><%= c.course_name %><% } %>
+            — <%= c.avg_score %>% <span class="muted">by <%= c.teacher_name %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="section-title">🕓 Recent & Upcoming Tests</div>
+    <div class="info-two-col">
+      <div class="stats-block">
+        <h3>🗂️ Recent Tests</h3>
+        <ul class="pretty-list">
+          <% lastResults.forEach(r => { %>
+            <li class="<%= r.is_checked ? '' : 'waiting' %>">
+              <strong><%= r.title %></strong> — <%= r.is_checked ? r.score_percent + '%' : 'Waiting for review' %>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+      <div class="stats-block">
+        <h3>📅 Upcoming</h3>
+        <ul class="pretty-list">
+          <% upcomingTests.forEach(t => { %>
+            <li class="upcoming">
+              <strong><%= t.title %></strong>
+              <span style="color:var(--text-muted); font-size:0.98em;">
+                (<%= t.course_name %>)
+              </span>
+              <% if (t.start_time) { %>
+                — <%= new Date(t.start_time).toLocaleString() %>
+              <% } %>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-title">📈 Course Progress</div>
+    <div class="stats-block" style="overflow-x:auto;">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Total</th>
+            <th>Completed</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% courseProgress.forEach(c => { %>
+            <tr>
+              <td><%= c.course_name %></td>
+              <td><%= c.total_tests %></td>
+              <td><%= c.completed_tests %></td>
+              <td><%= c.completion_percent %>%</td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,73 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Available Tests</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Available Tests</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/studentTestList.css" />
+  <link rel="stylesheet" href="/css/Back.css" />
 </head>
 <body>
-    <h1 style="display: inline-block;">Available Tests for Course</h1>
 
-    <% if (typeof averageScore !== 'undefined') { %>
-        <div style="
-            float: right;
-            background: #e0f7fa;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: bold;
-            border: 1px solid #26c6da;
-        ">
-            Course Average: <%= averageScore %>%
-        </div>
-    <% } %>
+  <h1>Available Tests for Course</h1>
 
-    <div style="clear: both;"></div>
+  <% if (typeof averageScore !== 'undefined') { %>
+    <div class="course-average">
+      Course Average: <%= averageScore %>%
+    </div>
+  <% } %>
 
-    <% if (!tests || tests.length === 0) { %>
-        <p>No available tests at this time.</p>
-    <% } else { %>
-        <ul>
-            <% tests.forEach(test => {
-                const now = new Date();
-                const startTime = test.start_time ? new Date(test.start_time) : null;
-                const endTime = test.end_time ? new Date(test.end_time) : null;
-                const notStarted = startTime && now < startTime;
-                const attemptsLeft = typeof test.attempts_left === 'number' ? test.attempts_left : null;
-            %>
-                <li style="margin-bottom: 20px;">
-                    <strong><%= test.title || 'Untitled Test' %></strong><br>
+  <div class="clear"></div>
 
-                    <% if (test.attempts_made > 0) { %>
-                        <% if (test.is_checked === false) { %>
-                            <em>Awaiting grading</em><br>
-                        <% } else if (test.last_score !== null) { %>
-                            Last score: <strong><%= test.last_score %>%</strong><br>
-                        <% } else { %>
-                            <em>Attempt submitted</em><br>
-                        <% } %>
-                    <% } else { %>
-                        <em>Not attempted yet</em><br>
-                    <% } %>
+  <% if (!tests || tests.length === 0) { %>
+    <p class="empty-msg">No available tests at this time.</p>
+  <% } else { %>
+    <ul class="test-list">
+      <% tests.forEach(test => {
+        const now = new Date();
+        const startTime = test.start_time ? new Date(test.start_time) : null;
+        const endTime = test.end_time ? new Date(test.end_time) : null;
+        const notStarted = startTime && now < startTime;
+        const attemptsLeft = typeof test.attempts_left === 'number' ? test.attempts_left : null;
+      %>
+        <li class="test-card">
+          <strong class="test-title"><%= test.title || 'Untitled Test' %></strong>
 
-                    Time Limit: <%= test.time_limit_minutes != null ? test.time_limit_minutes + ' min' : '-' %><br>
-                    Start: <%= startTime ? startTime.toLocaleString() : '-' %><br>
-                    End: <%= endTime ? endTime.toLocaleString() : '-' %><br>
+          <% if (test.attempts_made > 0) { %>
+            <% if (test.is_checked === false) { %>
+              <em class="test-status">Awaiting grading</em>
+            <% } else if (test.last_score !== null) { %>
+              <div class="test-score">Last score: <strong><%= test.last_score %>%</strong></div>
+            <% } else { %>
+              <em class="test-status">Attempt submitted</em>
+            <% } %>
+          <% } else { %>
+            <em class="test-status">Not attempted yet</em>
+          <% } %>
 
-                    Attempts: 
-                    <%= test.attempts_made != null ? test.attempts_made : '-' %> /
-                    <%= test.max_attempts != null && test.max_attempts !== 0 ? test.max_attempts : '∞' %><br>
+          <div class="test-info">
+            <div>⏱️ Time Limit: <%= test.time_limit_minutes != null ? test.time_limit_minutes + ' min' : '-' %></div>
+            <div>📅 Start: <%= startTime ? startTime.toLocaleString() : '-' %></div>
+            <div>📅 End: <%= endTime ? endTime.toLocaleString() : '-' %></div>
+            <div>🔁 Attempts: <%= test.attempts_made != null ? test.attempts_made : '-' %> / 
+                <%= test.max_attempts != null && test.max_attempts !== 0 ? test.max_attempts : '∞' %></div>
+          </div>
 
-                    <% if (notStarted) { %>
-                        <em>Test not yet available</em>
-                    <% } else if (attemptsLeft === 0) { %>
-                        <em>You have no attempts left</em>
-                    <% } else { %>
-                        <a href="/test/<%= test.id %>"><button>Start Test</button></a>
-                    <% } %>
-                </li>
-            <% }) %>
-        </ul>
-    <% } %>
+          <% if (notStarted) { %>
+            <em class="test-status warning">Test not yet available</em>
+          <% } else if (attemptsLeft === 0) { %>
+            <em class="test-status locked">You have no attempts left</em>
+          <% } else { %>
+            <a href="/test/<%= test.id %>" class="start-button">Start Test</a>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
 
-    <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+ <a href="<%= backUrl || '/dashboard' %>" class="floating-back-button" title="Back to Dashboard">← Back</a>
+
+
 </body>
 </html>

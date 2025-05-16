@@ -1,0 +1,122 @@
+#message-bell-container {
+    position: fixed; /* ОНОВЛЕНО! */
+    top: 85px;
+    right: 40px;
+    z-index: 1000;
+}
+#bell-icon {
+    font-size: 20px;
+    color: #5b21b6;
+    cursor: pointer;
+    position: relative;
+}
+#msg-indicator {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #fff;
+}
+.hidden { display: none; }
+#message-popup {
+    display: none;
+    position: absolute;
+    top: 30px;
+    right: 0;
+    width: 340px;
+    max-height: 400px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(124, 58, 237, 0.15);
+    padding: 16px;
+    z-index: 9999;
+    overflow-y: auto;
+    font-family: 'Poppins', sans-serif;
+}
+#message-popup h4 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5b21b6;
+}
+.msg-item {
+    background: #f8f8ff;
+    border: 1px solid #e0d7f7;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: background 0.3s;
+}
+.msg-item.unread {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+}
+.msg-meta {
+    font-size: 0.85rem;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+.msg-meta strong { color: #111827; }
+.msg-course {
+    color: #6b7280;
+    margin-left: 6px;
+}
+.msg-type {
+    float: right;
+    font-size: 0.75rem;
+    color: #7c3aed;
+    background: #ede9fe;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+.msg-content {
+    margin-top: 6px;
+    color: #1f2937;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-height: 100px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: hidden;
+}
+.no-msg {
+    color: #9ca3af;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+}
+.bell-red {
+  filter: brightness(0) saturate(100%) invert(16%) sepia(93%) saturate(4727%) hue-rotate(1deg) brightness(101%) contrast(106%);
+}
+
+@media (max-width: 768px) {
+    #message-bell-container {
+        top: auto;
+        bottom: 100px;
+        right: 10px;
+    }
+    #message-popup {
+        top: auto;
+        bottom: 38px;
+        left: auto !important;
+        right: 0 !important;
+        transform: none !important;
+        width: 300px !important;
+        max-height: 60vh;
+        margin-right: 0.5rem;
+        overflow-x: hidden;
+        word-break: break-word;
+        box-sizing: border-box;
+    }
+    .msg-content {
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-x: hidden;
+    }
+}

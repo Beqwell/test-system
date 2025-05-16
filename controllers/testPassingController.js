@@ -11,6 +11,7 @@ const db = require('../utils/db');
 const CourseDAO = require('../dao/CourseDAO');
 const QuestionDAO = require('../dao/QuestionDAO');
 const ResultDao = require('../dao/ResultDAO');
+const MessageDAO = require('../dao/MessageDAO');
 const SubmittedAnswerDAO = require('../dao/SubmittedAnswerDAO');
 const renderView = require('../utils/viewRenderer');
 const authMiddleware = require('../middlewares/authMiddleware');
@@ -358,11 +359,13 @@ module.exports = (router) => {
             }
 
             const averageScore = await TestDAO.getAverageScoreForStudentAllCourses(user.id);
-
+            const allMessages = await MessageDAO.getAllMessages(user.id);
+            
             renderView(res, 'tests/allTests.ejs', {
                 tests,
                 averageScore,
-                backUrl: '/dashboard'
+                backUrl: '/dashboard',
+                allMessages
             });
         } catch (err) {
             console.error('Error loading all tests:', err);

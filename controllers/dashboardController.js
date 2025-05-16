@@ -7,7 +7,9 @@ const crypto = require('crypto');
 const { parse } = require('querystring');
 const TestDAO = require('../dao/TestDAO');
 const CourseDAO = require('../dao/CourseDAO');
+const UserDAO = require('../dao/UserDAO');
 const MessageDAO = require('../dao/MessageDAO');
+const ResultDAO = require('../dao/ResultDAO');
 const renderView = require('../utils/viewRenderer');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -118,6 +120,35 @@ module.exports = (router) => {
         });
     }); // Join course route
 
+    router.get('/student/info', async (req, res) => {
+        const user = authMiddleware(req);
+        if (!user || user.role !== 'student') {
+            res.writeHead(403).end('Access denied');
+            return;
+        }
+
+        const [basicStats, lastResults, courseAverages, upcomingTests, courseProgress] = await Promise.all([
+            UserDAO.getStudentBasicStats(user.id),
+            ResultDAO.getLastResultsForStudent(user.id, 5),
+            TestDAO.getAverageScorePerCourse(user.id),
+            TestDAO.getUpcomingTests(user.id, 5),
+            TestDAO.getCourseTestStats(user.id),
+            MessageDAO.getAllMessages(user.id)
+        ]);
+
+        const allMessages = await MessageDAO.getAllMessages(user.id);
+
+        renderView(res, 'courses/studentInfo.ejs', {
+            username: user.username,
+            basicStats,
+            lastResults,
+            courseAverages,
+            upcomingTests,
+            courseProgress,
+            allMessages
+        });
+    });// Student info route
+    
 
 
 };

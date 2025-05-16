@@ -1,0 +1,29 @@
+.floating-back-button {
+  position: fixed;
+  bottom: 64px;
+  right: 400px;
+  background-color: #7c3aed;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+  z-index: 999;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.floating-back-button:hover {
+  background-color: #5b21b6;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .floating-back-button {
+    bottom: 24px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+}

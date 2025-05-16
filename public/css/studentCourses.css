@@ -1,0 +1,155 @@
+/* Специфічні стилі тільки для studentCourses.ejs */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.welcome {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.join-course-form {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.join-course-form input {
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--violet-border);
+  font-size: 1rem;
+  width: 200px;
+}
+
+.join-course-form input:focus {
+  border-color: var(--violet);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.join-course-form button {
+  background-color: var(--violet);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.join-course-form button:hover {
+  background-color: var(--violet-dark);
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.section h2 {
+  margin-bottom: 1.2rem;
+  font-size: 1.3rem;
+  color: var(--violet-dark);
+}
+
+.courses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 1.7rem;
+  margin-bottom: 2.5rem;
+}
+
+.course-card {
+  background: var(--white);
+  border-left: 6px solid var(--violet);
+  border-radius: var(--radius);
+  padding: 1.6rem 2rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  transition: box-shadow 0.23s;
+  position: relative;
+}
+
+.course-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+  flex: 1;
+}
+
+.course-icon {
+  background: var(--violet-soft);
+  color: var(--violet-dark);
+  font-size: 1.8rem;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.1);
+  flex-shrink: 0;
+}
+
+.course-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.course-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.course-meta {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.course-status {
+  font-size: 0.8rem;
+  background-color: var(--violet-soft);
+  color: var(--violet-dark);
+  width: fit-content;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+}
+
+.course-actions {
+  display: flex;
+  align-items: center;
+}
+
+.course-actions a {
+  background-color: var(--violet);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.course-actions a:hover {
+  background-color: var(--violet-dark);
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .header { flex-direction: column; align-items: flex-start; gap: 1rem;}
+  .courses-list { gap: 1rem; }
+  .course-card { padding: 1.2rem 1rem; flex-direction: column; align-items: flex-start;}
+}
+
+@media (max-width: 768px) {
+  .header { flex-direction: column; align-items: flex-start; gap: 1rem;}
+  .courses-list { grid-template-columns: 1fr !important; gap: 1.2rem;}
+  .main { padding: 5.5rem 0.5rem 2rem; }
+}

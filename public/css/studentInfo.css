@@ -1,0 +1,136 @@
+.info-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.3rem;
+}
+
+.info-block {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  min-height: 150px;
+}
+
+.info-block .badge {
+  background: var(--violet-soft);
+  color: var(--violet-dark);
+  font-size: 2.3rem;
+  font-weight: bold;
+  border-radius: var(--radius);
+  padding: 0.55rem 1.4rem;
+  width: fit-content;
+  margin-top: 0.6rem;
+  letter-spacing: 0.5px;
+}
+
+.section-title {
+  font-size: 1.32rem;
+  color: var(--violet-dark);
+  margin: 2.3rem 0 1.2rem;
+  font-weight: 600;
+}
+
+.info-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stats-block {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.6rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.stats-block h3 {
+  font-size: 1.09rem;
+  color: var(--violet-dark);
+  margin-bottom: 0.4rem;
+}
+.stats-block p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.72;
+}
+.stats-block p strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Курси в середніх балах */
+.course-avg {
+  margin: 0.18rem 0 0.18rem 0;
+  color: var(--violet-dark);
+  font-size: 1.03rem;
+  font-weight: 500;
+}
+.course-avg .high {
+  font-weight: 700;
+  color: var(--success);
+}
+.course-avg .muted {
+  color: var(--text-muted);
+  font-size: 0.95em;
+}
+
+.pretty-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.2rem;
+}
+.pretty-list li {
+  position: relative;
+  padding-left: 1.8rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  font-size: 0.97rem;
+}
+.pretty-list li::before {
+  content: '✅';
+  position: absolute;
+  left: 0;
+  color: var(--violet-dark);
+  font-size: 1rem;
+}
+.pretty-list li.waiting::before { content: '⏳'; color: #d97706; }
+.pretty-list li.upcoming::before { content: '📅'; color: #2563eb; }
+
+/* Таблиця */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin-top: 1.1rem;
+}
+.stats-table th, .stats-table td {
+  border: 1px solid var(--violet-soft);
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+.stats-table th {
+  background: var(--violet-soft);
+  color: var(--violet-dark);
+}
+
+/* Адаптив */
+@media (max-width: 900px) {
+  .info-grid, .info-two-col { grid-template-columns: 1fr; }
+  .info-block, .stats-block { padding: 1.2rem 1rem; }
+}
+@media (max-width: 768px) {
+  .info-grid, .info-two-col { grid-template-columns: 1fr; gap: 1rem; }
+  .section-title { font-size: 1.07rem; margin: 1.1rem 0 0.7rem; }
+  .stats-table th, .stats-table td { padding: 0.4rem 0.7rem; }
+  .info-block .badge { font-size: 1.5rem; padding: 0.35rem 0.8rem; }
+}

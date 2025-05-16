@@ -5,277 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student Dashboard — EduPlatform</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --lavender-bg: #f3ecff;
-      --violet: #7c3aed;
-      --violet-dark: #5b21b6;
-      --violet-soft: #ede9fe;
-      --violet-border: #d6bbfb;
-      --white: #ffffff;
-      --text-dark: #2e1065;
-      --text-muted: #6b7280;
-      --radius: 14px;
-      --shadow: 0 12px 28px rgba(124, 58, 237, 0.12);
-      --transition: 0.25s ease;
-    }
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/studentCourses.css">
+  <link rel="stylesheet" href="/css/messageBell.css">
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      height: 100%;
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--lavender-bg);
-      color: var(--text-dark);
-    }
-
-    body { display: flex; }
-
-    .menu-toggle {
-      display: none;
-      font-size: 1.8rem;
-      background: none;
-      border: none;
-      color: var(--violet-dark);
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 1001;
-      cursor: pointer;
-    }
-
-    .sidebar {
-      width: 240px;
-      background-color: var(--white);
-      border-right: 1px solid var(--violet-border);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: var(--shadow);
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      padding: 2rem 1rem;
-      transition: transform 0.3s ease;
-      z-index: 1000;
-    }
-
-    .sidebar h1 {
-      font-size: 1.5rem;
-      color: var(--violet-dark);
-      margin-bottom: 2rem;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-    }
-
-    .nav-links a {
-      color: var(--text-dark);
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.6rem 0.9rem;
-      border-radius: var(--radius);
-      transition: var(--transition);
-    }
-
-    .nav-links a:hover {
-      background-color: var(--violet-soft);
-      color: var(--violet-dark);
-    }
-
-    .logout {
-      text-align: center;
-    }
-
-    .logout a {
-      font-size: 0.95rem;
-      color: var(--violet-dark);
-      text-decoration: none;
-    }
-
-    .logout a:hover { text-decoration: underline; }
-
-    .main {
-      margin-left: 240px;
-      padding: 2.5rem 3rem;
-      flex: 1;
-      transition: margin-left 0.3s ease;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .welcome {
-      font-size: 1.6rem;
-      font-weight: 600;
-    }
-
-    .join-course-form {
-      display: flex;
-      gap: 0.6rem;
-    }
-
-    .join-course-form input {
-      padding: 0.7rem 1.1rem;
-      border-radius: var(--radius);
-      border: 1px solid var(--violet-border);
-      font-size: 1rem;
-      width: 200px;
-    }
-
-    .join-course-form input:focus {
-      border-color: var(--violet);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-    }
-
-    .join-course-form button {
-      background-color: var(--violet);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.7rem 1.4rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .join-course-form button:hover {
-      background-color: var(--violet-dark);
-    }
-
-    .section {
-      margin-bottom: 2rem;
-    }
-
-    .section h2 {
-      margin-bottom: 1.2rem;
-      font-size: 1.3rem;
-      color: var(--violet-dark);
-    }
-
-    .course-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1.6rem;
-    }
-
-    .course-card {
-      background: var(--white);
-      border-left: 6px solid var(--violet);
-      border-radius: var(--radius);
-      padding: 1.6rem 2rem;
-      box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .course-left {
-      display: flex;
-      align-items: flex-start;
-      gap: 1.2rem;
-      flex: 1;
-    }
-
-    .course-icon {
-      background: var(--violet-soft);
-      color: var(--violet-dark);
-      font-size: 1.8rem;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(124, 58, 237, 0.1);
-      flex-shrink: 0;
-    }
-
-    .course-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .course-content h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-
-    .course-meta {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .course-status {
-      font-size: 0.8rem;
-      background-color: var(--violet-soft);
-      color: var(--violet-dark);
-      width: fit-content;
-      padding: 0.4rem 0.7rem;
-      border-radius: 6px;
-    }
-
-    .course-actions a {
-      background-color: var(--violet);
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-
-    .course-actions a:hover {
-      background-color: var(--violet-dark);
-    }
-
-    /* MOBILE */
-    @media (max-width: 768px) {
-      .menu-toggle { display: block; }
-
-      .sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 90vh;
-        transform: translateY(-100%);
-        position: fixed;
-        padding-top: 5rem;
-      }
-
-      .sidebar.active {
-        transform: translateY(0);
-      }
-
-      .main {
-        margin-left: 0;
-        padding: 6rem 1.5rem 2rem;
-      }
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-
-      .course-card {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-  </style>
 </head>
 <body>
-
   <!-- ☰ Toggle Button -->
   <button class="menu-toggle" onclick="toggleMenu()">☰</button>
 
@@ -284,8 +19,8 @@
     <div>
       <h1>EduPlatform</h1>
       <nav class="nav-links">
-        <a href="/dashboard">🏠 Dashboard</a>
-        <a href="/dashboard">📚 My Courses</a>
+        <a href="/student/info">👤 My info</a>
+        <a href="/dashboard" class="active">🏠 Dashboard</a>
         <a href="/student/all-tests">📈 All Tests</a>
         <a href="#">🧾 Results</a>
       </nav>
@@ -299,7 +34,7 @@
   <main class="main">
     <div class="header">
       <div class="welcome">Welcome, <%= username %> <small>(Student)</small></div>
-            <%- include('../partials/messageBell', { allMessages }) %>
+      <%- include('../partials/messageBell', { allMessages }) %>
       <form class="join-course-form" method="POST" action="/join-course">
         <input type="text" name="join_code" placeholder="Join code..." required />
         <button type="submit">Join</button>
@@ -311,13 +46,13 @@
       <% if (courses.length === 0) { %>
         <p>You haven’t joined any courses yet.</p>
       <% } else { %>
-        <div class="course-grid">
+        <div class="courses-list">
           <% courses.forEach(course => { %>
             <div class="course-card">
               <div class="course-left">
                 <div class="course-icon">📘</div>
                 <div class="course-content">
-                  <h3><%= course.name %></h3>
+                  <h3 class="course-title"><%= course.name %></h3>
                   <div class="course-meta">
                     👨‍🏫 <strong>Teacher:</strong> <%= course.teacher_name %><br>
                     📅 <strong>Created:</strong> <%= course.created_at %><br>
