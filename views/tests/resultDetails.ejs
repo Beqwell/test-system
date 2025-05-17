@@ -1,123 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Result Details</title>
-  <style>
-    .edit-panel   { margin-top: 10px; }
-    .hidden       { display: none; }
-    .readonly-note{ color: gray; font-size: 13px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/resultDetails.css">
+  <link rel="stylesheet" href="/css/Back.css" />
+  
 </head>
 <body>
-  <h1>Result Details</h1>
+  <div class="container">
+    <h1>Result Details</h1>
 
-  <% questions.forEach((q, i) => {
-      const answer    = q.answers.find(a => a.is_checked) || q.answers[0];
+    <% questions.forEach((q, i) => {
+      const answer = q.answers.find(a => a.is_checked) || q.answers[0];
       const isChecked = answer?.is_checked === true;
-      const accuracy  = answer?.accuracy_percent;
-      const answerId  = answer?.id;
-  %>
-    <div style="margin-bottom:25px; padding:10px; border:1px solid #ccc;">
-      <strong><%= i + 1 %>. <%= q.question_text %></strong><br><br>
-        <%- renderAttachmentHTML(q.attachment_path) %>
-
-
-      <% if (q.question_type === 'one' || q.question_type === 'multi') { %>
-        <ul>
-          <% q.answers.forEach(a => { %>
-            <li>
-              <%= a.text %>
-              <% if (a.is_selected) { %> — <strong>Selected</strong><% } %>
-              <% if (a.is_correct)  { %> — <em>(Correct answer)</em><% } %>
-            </li>
-          <% }) %>
-        </ul>
-      <% } else { %>
-        <p><strong>Student answer:</strong> <%= q.student_answers?.[0] || '(no answer)' %></p>
-        <% if (q.expected_answer) { %>
-          <p><strong>Expected:</strong> <%= q.expected_answer %></p>
-        <% } %>
-      <% } %>
-
-      <% if (isChecked) { %>
-        <div id="readonly-<%= answerId %>">
-          <div class="readonly-note">Graded — can be edited</div>
-          <strong>Result:</strong>
-          <% if (accuracy === 100) { %> ✅ Correct
-          <% } else if (accuracy === 0) { %> ❌ Incorrect
-          <% } else { %> <%= accuracy %>% correct
-          <% } %>
-          <br><br>
-          <button onclick="showEditMode('<%= answerId %>')">Edit Result</button>
+      const accuracy = answer?.accuracy_percent;
+      const answerId = answer?.id;
+    %>
+      <div class="question-wrapper">
+        <div class="question-meta">
+          Task <%= i + 1 %><br>
+          <% if (q.question_type === 'one') { %>Single Choice
+          <% } else if (q.question_type === 'multi') { %>Multiple Choice
+          <% } else if (q.question_type === 'text') { %>Text Input
+          <% } else { %>Number Input<% } %>
         </div>
-      <% } %>
 
-      <div id="form-mode-<%= answerId %>" class="edit-panel <%= isChecked ? 'hidden' : '' %>">
-        <form method="POST" action="/answer/<%= answerId %>/evaluate">
-          <!-- передаём result_id и question_id для однозначного апдейта -->
-          <input type="hidden" name="result_id"   value="<%= resultId   %>">
-          <input type="hidden" name="question_id" value="<%= q.id        %>">
+        <div class="question-card">
+          <div class="question-title"><%= q.question_text %></div>
+          <div class="attachment"><%- renderAttachmentHTML(q.attachment_path) %></div>
 
-          <!-- ✅/❌ Mode -->
-          <div id="bool-block-<%= answerId %>">
-            <label><input type="radio" name="is_correct" value="true"> ✅ Correct</label>
-            <label><input type="radio" name="is_correct" value="false"> ❌ Incorrect</label>
-            <br><br>
-            <button type="button" onclick="switchToAccuracy('<%= answerId %>')">
-              Switch to Accuracy %
-            </button>
-            <br><br>
-            <button type="submit">Save</button>
+          <% if (q.question_type === 'one' || q.question_type === 'multi') { %>
+            <ul>
+              <% q.answers.forEach(a => {
+                const cls = [
+                  a.is_selected ? 'selected' : '',
+                  a.is_correct ? 'correct' : '',
+                  a.is_selected && !a.is_correct ? 'incorrect' : ''
+                ].filter(Boolean).join(' ');
+              %>
+                <li class="<%= cls %>">
+                  <%= a.text %>
+                  <% if (a.is_selected) { %> — <strong>Selected</strong><% } %>
+                  <% if (a.is_correct)  { %> — <em>(Correct answer)</em><% } %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } else { %>
+            <p><strong>Student answer:</strong> <%= q.student_answers?.[0] || '(no answer)' %></p>
+            <% if (q.expected_answer) { %>
+              <p><strong>Expected:</strong> <%= q.expected_answer %></p>
+            <% } %>
+          <% } %>
+
+          <% if (isChecked) { %>
+            <div id="readonly-<%= answerId %>">
+              <div class="readonly-note">Graded — can be edited</div>
+              <strong>Result:</strong>
+              <% if (accuracy === 100) { %> ✅ Correct
+              <% } else if (accuracy === 0) { %> ❌ Incorrect
+              <% } else { %> <%= accuracy %>% correct <% } %>
+              <br><br>
+              <button onclick="showEditMode('<%= answerId %>')">Edit Result</button>
+            </div>
+          <% } %>
+
+          <div id="form-mode-<%= answerId %>" class="grading-panel <%= isChecked ? 'hidden' : '' %>">
+            <form method="POST" action="/answer/<%= answerId %>/evaluate">
+              <input type="hidden" name="result_id" value="<%= resultId %>">
+              <input type="hidden" name="question_id" value="<%= q.id %>">
+
+              <div id="bool-block-<%= answerId %>">
+                <label><input type="radio" name="is_correct" value="true"> ✅ Correct</label>
+                <label><input type="radio" name="is_correct" value="false"> ❌ Incorrect</label>
+                <br>
+                <button type="button" onclick="switchToAccuracy('<%= answerId %>')">Switch to Accuracy %</button>
+                <br>
+                <button type="submit">Save</button>
+              </div>
+
+              <div id="accuracy-block-<%= answerId %>" class="hidden">
+                <label>Accuracy (%):</label><br>
+                <input type="number"
+                       id="accuracy-input-<%= answerId %>"
+                       min="0" max="100"
+                       value="<%= accuracy ?? '' %>"
+                       required>
+                <br>
+                <button type="button" onclick="switchToBool('<%= answerId %>')">Back</button>
+                <button type="submit">Save</button>
+              </div>
+            </form>
           </div>
-
-          <!-- % Mode -->
-          <div id="accuracy-block-<%= answerId %>" class="hidden">
-            <label>Accuracy (%):</label>
-            <input type="number"
-                   id="accuracy-input-<%= answerId %>"
-                   min="0" max="100"
-                   value="<%= accuracy ?? '' %>"
-                   required>
-            <br><br>
-            <button type="button" onclick="switchToBool('<%= answerId %>')">
-              Back to Correct/Incorrect
-            </button>
-            <br><br>
-            <button type="submit">Save</button>
-          </div>
-
-        </form>
+        </div>
       </div>
-    </div>
-  <% }) %>
+    <% }) %>
 
-  <% 
-    // проверяем, что каждый вопрос уже проверен
-    const allChecked = questions.every(q => q.answers.some(a => a.is_checked)); 
-  %>
+    <% const allChecked = questions.every(q => q.answers.some(a => a.is_checked)); %>
+    <% if (allChecked) { %>
+      <div class="summary-panel">
+        <strong>Preview Score:</strong> <%= previewPercent %>%  
+        <div class="preview-note">(what student will get)</div>
+      </div>
+    <% } else { %>
+      <div class="summary-panel" style="color: darkred;">
+        Не все ответы проверены — невозможно сохранить финальный результат
+      </div>
+    <% } %>
 
-  <% if (allChecked) { %>
-    <div style="margin-bottom:1em;">
-      <strong>Preview Score:</strong> <%= previewPercent %>%  
-      <span style="color: gray; font-size: 0.9em;">
-        (what student will get)
-      </span>
-    </div>
-  <% } else { %>
-    <div style="margin-bottom:1em; color: darkred;">
-      Не все ответы проверены — невозможно сохранить финальный результат
-    </div>
-  <% } %>
+    <form method="POST" action="/result/<%= resultId %>/recalculate">
+      <button type="submit" <%= !allChecked ? 'disabled' : '' %>>
+        💾 Save Final Result
+      </button>
+    </form>
 
-  <form method="POST" action="/result/<%= resultId %>/recalculate">
-    <button type="submit"
-      <%= !allChecked ? 'disabled' : '' %>>
-      💾 Save Final Result
-    </button>
-  </form>
+     <a href="<%= backUrl || '/dashboard' %>" class="floating-back-button" title="Back to Dashboard">← Back</a>
 
-  <br><a href="<%= backUrl || '/dashboard' %>">Back</a>
+  </div>
 
   <script>
     function showEditMode(id) {
@@ -130,17 +131,13 @@
       document.getElementById(`bool-block-${id}`).classList.add('hidden');
       document.querySelectorAll(`#bool-block-${id} input[name="is_correct"]`)
               .forEach(el => el.removeAttribute('name'));
-
       document.getElementById(`accuracy-block-${id}`).classList.remove('hidden');
-      const num = document.getElementById(`accuracy-input-${id}`);
-      num.setAttribute('name', 'accuracy_percent');
+      document.getElementById(`accuracy-input-${id}`).setAttribute('name', 'accuracy_percent');
     }
 
     function switchToBool(id) {
       document.getElementById(`accuracy-block-${id}`).classList.add('hidden');
-      const num = document.getElementById(`accuracy-input-${id}`);
-      if (num) num.removeAttribute('name');
-
+      document.getElementById(`accuracy-input-${id}`)?.removeAttribute('name');
       const boolBlock = document.getElementById(`bool-block-${id}`);
       boolBlock.classList.remove('hidden');
       boolBlock.querySelectorAll('input[type="radio"]')

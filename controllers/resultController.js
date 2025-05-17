@@ -182,7 +182,7 @@ module.exports = (router) => {
         }
     }); // Check test result route  
 
-    router.post('/result/:resultId/recalculate', async (req, res) => {
+router.post('/result/:resultId/recalculate', async (req, res) => {
     const user = authMiddleware(req);
     const resultId = parseInt(req.params.resultId);
 
@@ -193,33 +193,20 @@ module.exports = (router) => {
     }
 
     try {
-        // Отримуємо всі accuracy_percent для цього result
-        const query = `
-            SELECT accuracy_percent
-            FROM answers_submitted
-            WHERE result_id = $1
-        `;
-        const { rows } = await db.query(query, [resultId]);
+        // 1. Використовуємо правильний підрахунок через preview
+        const { percent, total, correctPoints } = await ResultDao.calculateResultPreview(resultId);
 
-        const scores = rows.map(r => r.accuracy_percent);
-        const allGraded = scores.length > 0 && scores.every(p => p !== null);
-
-        if (!allGraded) {
-            res.writeHead(400, { 'Content-Type': 'text/plain' });
-            res.end('Cannot finalize: some answers are not graded yet.');
-            return;
-        }
-
-        const sum = scores.reduce((acc, val) => acc + val, 0);
-        const average = Math.round(sum / scores.length);
-
+        // 2. Оновлюємо результат у таблиці
         await db.query(`
             UPDATE results
             SET score_percent = $2,
-                is_checked = true
+                correct_count = $3,
+                total_count   = $4,
+                is_checked    = true
             WHERE id = $1
-        `, [resultId, average]);
+        `, [resultId, percent, Math.round(correctPoints), total]);
 
+        // 3. Переадресація назад
         res.writeHead(302, { Location: req.headers.referer || `/result/${resultId}` });
         res.end();
     } catch (err) {
@@ -227,7 +214,8 @@ module.exports = (router) => {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Server error');
     }
-    });
+});
+
 
     
 };
